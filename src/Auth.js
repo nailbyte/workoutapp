@@ -9,6 +9,8 @@ function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null); // NEW
+  const [error, setError] = useState("");
+
 
 
   useEffect(() => {
@@ -26,7 +28,7 @@ function Auth() {
       await signInWithEmailAndPassword(auth, email, password);
       alert("Signed in successfully!");
     } catch (error) {
-      alert(error.message);
+      setError(error.message);
     }
   };
 
@@ -36,7 +38,7 @@ function Auth() {
       await signInWithPopup(auth, provider);
       alert("Signed in with Google successfully!");
     } catch (error) {
-      alert(error.message);
+      setError(error.message);
     }
   };
 
@@ -45,7 +47,7 @@ function Auth() {
       await signOut(auth);
       alert("Signed out successfully!");
     } catch (error) {
-      alert(error.message);
+      setError(error.message);
     }
   };
   const handleSignUp = async () => {
@@ -53,7 +55,7 @@ function Auth() {
       await createUserWithEmailAndPassword(auth, email, password);
       alert("Signed up successfully!");
     } catch (error) {
-      alert(error.message);
+      setError(error.message);
     }
   };
   
@@ -130,6 +132,11 @@ function Auth() {
               Sign Out
             </Button>
           </Grid>
+        )}
+        {error && (
+          <Typography variant="body2" color="error" align="center">
+            {error}
+          </Typography>
         )}
       </Grid>
     </Paper>
