@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { auth } from './firebase';  // <-- Important change here
 
 import { Button, TextField, Grid, Typography, Paper } from "@mui/material";
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
@@ -8,6 +7,7 @@ import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
+import { auth } from './firebase'; 
 
 function Auth() {
   const [email, setEmail] = useState("");
@@ -17,11 +17,11 @@ function Auth() {
   const [successMessage, setSuccessMessage] = useState("");
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
-  
     setSnackbarOpen(false);
   };
   
@@ -174,7 +174,7 @@ function Auth() {
           <IconButton
             size="small"
             color="inherit"
-            onClick={() => setSnackbarOpen(false)}
+            onClick={handleCloseSnackbar}
           >
             <CloseIcon />
           </IconButton>
