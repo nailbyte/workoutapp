@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { auth } from './firebase';  // <-- Important change here
 
 import { Button, TextField, Grid, Typography, Paper } from "@mui/material";
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 
 
 function Auth() {
@@ -48,7 +48,15 @@ function Auth() {
       alert(error.message);
     }
   };
-
+  const handleSignUp = async () => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      alert("Signed up successfully!");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+  
   return (
     <Paper elevation={3} style={{ padding: "20px" }}>
       <Typography variant="h5" align="center">
@@ -93,6 +101,16 @@ function Auth() {
               <Button
                 fullWidth
                 variant="contained"
+                color="secondary"
+                onClick={handleSignUp}
+              >
+                Sign Up
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                fullWidth
+                variant="contained"
                 color="primary"
                 onClick={handleGoogleSignIn}
               >
@@ -100,7 +118,8 @@ function Auth() {
               </Button>
             </Grid>
           </>
-        ) : ( // If user IS signed in
+        ) : (
+          // If user IS signed in
           <Grid item xs={12}>
             <Button
               fullWidth
