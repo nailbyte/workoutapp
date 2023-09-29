@@ -1,13 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { auth } from './firebase';  // <-- Important change here
 
 import { Button, TextField, Grid, Typography, Paper } from "@mui/material";
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 
 
 function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [user, setUser] = useState(null); // NEW
+
+
+  useEffect(() => {
+    // This observer returns the current user state.
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    // Cleanup on component unmount.
+    return () => unsubscribe();
+  }, []);
 
   const handleSignIn = async () => {
     try {
@@ -43,61 +55,66 @@ function Auth() {
         Workout App
       </Typography>
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <TextField
-            variant="outlined"
-            required
-            fullWidth
-            label="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            variant="outlined"
-            required
-            fullWidth
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            onClick={handleSignIn}
-          >
-            Sign In
-          </Button>
-        </Grid>
-        <Grid item xs={12}>
-          <Button
-            fullWidth
-            variant="contained"
-            color="primary"
-            onClick={handleGoogleSignIn}
-          >
-            Sign In with Google
-          </Button>
-        </Grid>
-        <Grid item xs={12}>
-          <Button
-            fullWidth
-            variant="contained"
-            color="secondary"
-            onClick={handleSignOut}
-          >
-            Sign Out
-          </Button>
-        </Grid>
+        {!user ? ( // Check if user is NOT signed in
+          <>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                label="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                onClick={handleSignIn}
+              >
+                Sign In
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                onClick={handleGoogleSignIn}
+              >
+                Sign In with Google
+              </Button>
+            </Grid>
+          </>
+        ) : ( // If user IS signed in
+          <Grid item xs={12}>
+            <Button
+              fullWidth
+              variant="contained"
+              color="secondary"
+              onClick={handleSignOut}
+            >
+              Sign Out
+            </Button>
+          </Grid>
+        )}
       </Grid>
     </Paper>
-  );
+  );  
 }
 
 export default Auth;
