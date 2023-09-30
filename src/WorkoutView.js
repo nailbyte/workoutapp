@@ -18,7 +18,7 @@ function WorkoutView() {
         console.error("currentUser or currentUser.uid is undefined");
         return;
       }
-      console.log("Fetching user data...", currentUser);
+      console.log("Fetching user data...", currentUser.uid);
       const userDocRef = doc(db, "users", currentUser.uid);
 
       try {
@@ -93,52 +93,73 @@ function WorkoutView() {
 
     fetchLastWorkoutLog();
   }, [localUserData, currentUser]);
+// ... (rest of the WorkoutView component above the return statement)
 
-  return (
-    <div>
-      {workoutData && workoutData.programName && (
-        <Typography variant="h6">{workoutData.programName}</Typography>
+const determineNextWorkoutDay = (lastWorkoutDay, totalDays) => {
+  if (!lastWorkoutDay) return "Day1"; // Default first day
+
+  const dayNumber = parseInt(lastWorkoutDay.replace('Day', ''));
+  const nextDayNumber = (dayNumber % totalDays) + 1; // Cycle back to Day1 after the last day
+
+  return `Day${nextDayNumber}`;
+};
+
+const lastWorkoutDay = lastWorkoutLog ? Object.keys(lastWorkoutLog.exercises)[0] : null;
+const totalWorkoutDays = workoutData && workoutData.days ? Object.keys(workoutData.days).length : 0;
+const todayWorkoutDay = determineNextWorkoutDay(lastWorkoutDay, totalWorkoutDays);
+
+return (
+  <div>
+      {lastWorkoutLog && (
+          <div>
+              <Typography variant="h5">Last Workout: {lastWorkoutDay}</Typography>
+              {Object.entries(lastWorkoutLog.exercises[lastWorkoutDay] || {}).map(([exercise, { weight, reps }]) => (
+                  <div key={exercise}>
+                      <Typography variant="h6">{exercise}</Typography>
+                      <Typography>Weight: {weight}, Reps: {reps}</Typography>
+                  </div>
+              ))}
+          </div>
       )}
-      {workoutData && workoutData.days && Object.entries(workoutData.days).map(([day, exercises]) => (
-        <div key={day}>
-          <Typography variant="h5">{day}</Typography>
-          {Object.entries(exercises).map(([exercise, { sets, reps }]) => (
-            <div key={exercise}>
-              <Typography variant="h6">{exercise}</Typography>
-              <Typography>Sets: {sets}, Reps: {reps}</Typography>
-              <TextField
-                label="Weight"
-                defaultValue={lastWorkoutLog && lastWorkoutLog.exercises && lastWorkoutLog.exercises[exercise] && lastWorkoutLog.exercises[exercise][0] ? lastWorkoutLog.exercises[exercise][0].weight : ""}
-                variant="outlined"
-                margin="normal"
-                fullWidth
-              />
-              <TextField
-                label="Reps"
-                defaultValue={lastWorkoutLog && lastWorkoutLog.exercises && lastWorkoutLog.exercises[exercise] && lastWorkoutLog.exercises[exercise][0] ? lastWorkoutLog.exercises[exercise][0].reps : ""}
-                variant="outlined"
-                margin="normal"
-                fullWidth
-              />
-            </div>
-          ))}
-        </div>
-      ))}
-      {/* Add components or elements to show workout details */}
+
+      {workoutData && workoutData.days && todayWorkoutDay && (
+          <div>
+              <Typography variant="h5">Today's Workout: {todayWorkoutDay}</Typography>
+              {Object.entries(workoutData.days[todayWorkoutDay] || {}).map(([exercise, { sets, reps }]) => (
+                  <div key={exercise}>
+                      <Typography variant="h6">{exercise}</Typography>
+                      <Typography>Sets: {sets}, Reps: {reps}</Typography>
+                      <TextField
+                          label="Weight"
+                          variant="outlined"
+                          margin="normal"
+                          fullWidth
+                      />
+                      <TextField
+                          label="Reps"
+                          variant="outlined"
+                          margin="normal"
+                          fullWidth
+                      />
+                  </div>
+              ))}
+          </div>
+      )}
+
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Button
-            fullWidth
-            variant="contained"
-            color="secondary"
-            onClick={handleLogout}
-          >
-            Logout
-          </Button>
-        </Grid>
+          <Grid item xs={12}>
+              <Button
+                  fullWidth
+                  variant="contained"
+                  color="secondary"
+                  onClick={handleLogout}
+              >
+                  Logout
+              </Button>
+          </Grid>
       </Grid>
-    </div>
-  );
+  </div>
+);
 }
 
 export default WorkoutView;
