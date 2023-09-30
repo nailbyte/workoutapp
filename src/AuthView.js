@@ -1,84 +1,78 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 
 import { Button, TextField, Grid, Typography, Paper } from "@mui/material";
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
+//import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 
 import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
-import { auth } from './firebase'; 
+import { AuthContext } from './AuthContext';
 
-function Auth() {
+function AuthView() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null); // NEW
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   
+  const {
+    user,
+    handleSignIn,
+    handleSignUp,
+    handleGoogleSignIn,
+    handleLogout
+  } = useContext(AuthContext);
+
+  const onSignIn = async () => {
+    try {
+      await handleSignIn(email, password);
+      setSuccessMessage("Signed in successfully!");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSnackbarOpen(true);
+    }
+  };
+
+  const onSignUp = async () => {
+    try {
+      await handleSignUp(email, password);
+      setSuccessMessage("Signed up successfully!");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSnackbarOpen(true);
+    }
+  };
+
+  const onGoogleSignIn = async () => {
+    try {
+      await handleGoogleSignIn();
+      setSuccessMessage("Signed in with Google successfully!");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSnackbarOpen(true);
+    }
+  };
+
+  const onSignOut = async () => {
+    try {
+      await handleLogout();
+      setSuccessMessage("Signed out successfully!");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSnackbarOpen(true);
+    }
+  };
+
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
     setSnackbarOpen(false);
-  };
-  
-
-
-  useEffect(() => {
-    // This observer returns the current user state.
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-
-    // Cleanup on component unmount.
-    return () => unsubscribe();
-  }, []);
-
-  const handleSignIn = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      setSuccessMessage("Signed in successfully!");
-      setSnackbarOpen(true);
-    } catch (error) {
-      setError(error.message);
-      setSnackbarOpen(true);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      setSuccessMessage("Signed in with Google successfully!");
-      setSnackbarOpen(true);
-    } catch (error) {
-      setError(error.message);
-      setSnackbarOpen(true);
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      setSuccessMessage("Signed out successfully!");
-      setSnackbarOpen(true);
-    } catch (error) {
-      setError(error.message);
-      setSnackbarOpen(true);
-    }
-  };
-  const handleSignUp = async () => {
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      setSuccessMessage("Signed up successfully!");
-      setSnackbarOpen(true);
-    } catch (error) {
-      setError(error.message);
-      setSnackbarOpen(true);
-    }
   };
   
   return (
@@ -116,7 +110,7 @@ function Auth() {
                 fullWidth
                 variant="contained"
                 color="primary"
-                onClick={handleSignIn}
+                onClick={onSignIn}
               >
                 Sign In
               </Button>
@@ -126,7 +120,7 @@ function Auth() {
                 fullWidth
                 variant="contained"
                 color="secondary"
-                onClick={handleSignUp}
+                onClick={onSignUp}
               >
                 Sign Up
               </Button>
@@ -136,7 +130,7 @@ function Auth() {
                 fullWidth
                 variant="contained"
                 color="primary"
-                onClick={handleGoogleSignIn}
+                onClick={onGoogleSignIn}
               >
                 Sign In with Google
               </Button>
@@ -149,7 +143,7 @@ function Auth() {
               fullWidth
               variant="contained"
               color="secondary"
-              onClick={handleSignOut}
+              onClick={onSignOut}
             >
               Sign Out
             </Button>
@@ -187,4 +181,4 @@ function Auth() {
   );  
 }
 
-export default Auth;
+export default AuthView;
