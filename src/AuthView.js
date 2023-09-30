@@ -1,83 +1,64 @@
 import React, { useState, useContext } from "react";
 
 import { Button, TextField, Grid, Typography, Paper } from "@mui/material";
-//import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
+import GoogleIcon from "@mui/icons-material/Google";
 
-import Snackbar from '@mui/material/Snackbar';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-
-import { AuthContext } from './AuthContext';
+import { AuthContext } from "./AuthContext";
+import { useTheme } from '@mui/material/styles';
+import { useSnackbar } from 'notistack';
 
 function AuthView() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
   
-  const {
-    user,
-    handleSignIn,
-    handleSignUp,
-    handleGoogleSignIn,
-    handleLogout
-  } = useContext(AuthContext);
+  const { enqueueSnackbar } = useSnackbar();
+  const theme = useTheme();
+
+  const { user, handleSignIn, handleSignUp, handleGoogleSignIn, handleLogout } =
+    useContext(AuthContext);
 
   const onSignIn = async () => {
     try {
       await handleSignIn(email, password);
-      setSuccessMessage("Signed in successfully!");
+      enqueueSnackbar('Signed in successfully!', { variant: 'success' });
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setSnackbarOpen(true);
+      enqueueSnackbar(err.message, { variant: 'error' });
     }
   };
 
   const onSignUp = async () => {
     try {
       await handleSignUp(email, password);
-      setSuccessMessage("Signed up successfully!");
+      enqueueSnackbar('Signed up successfully!', { variant: 'success' });
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setSnackbarOpen(true);
+      enqueueSnackbar(err.message, { variant: 'error' });
     }
   };
 
   const onGoogleSignIn = async () => {
     try {
       await handleGoogleSignIn();
-      setSuccessMessage("Signed in with Google successfully!");
+      enqueueSnackbar('Signed in with Google successfully!', { variant: 'success' });
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setSnackbarOpen(true);
+      enqueueSnackbar(err.message, { variant: 'error' });
     }
   };
 
   const onSignOut = async () => {
     try {
       await handleLogout();
-      setSuccessMessage("Signed out successfully!");
+      enqueueSnackbar('Signed out successfully!', { variant: 'success' });
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setSnackbarOpen(true);
+      enqueueSnackbar(err.message, { variant: 'error' });
     }
   };
 
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackbarOpen(false);
-  };
-  
   return (
-    <Paper elevation={3} style={{ padding: "20px" }}>
-      <Typography variant="h5" align="center">
+    <Paper
+      elevation={3}
+      style={{ padding: theme.spacing(3), maxWidth: "400px", margin: "0 auto" }}
+    >
+      <Typography variant="h5" align="center" gutterBottom>
         Workout App
       </Typography>
       <Grid container spacing={2}>
@@ -130,6 +111,7 @@ function AuthView() {
                 fullWidth
                 variant="contained"
                 color="primary"
+                startIcon={<GoogleIcon />} // Add the Google Icon
                 onClick={onGoogleSignIn}
               >
                 Sign In with Google
@@ -149,36 +131,9 @@ function AuthView() {
             </Button>
           </Grid>
         )}
-        {error && (
-          <Typography variant="body2" color="error" align="center">
-            {error}
-          </Typography>
-        )}
       </Grid>
-      <Snackbar
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        message={error || successMessage}
-        action={
-          <IconButton
-            size="small"
-            color="inherit"
-            onClick={handleCloseSnackbar}
-          >
-            <CloseIcon />
-          </IconButton>
-        }
-        style={{
-          backgroundColor: error ? "#f44336" : "#4caf50", // red for error, green for success
-        }}
-      />
     </Paper>
-  );  
+  );
 }
 
 export default AuthView;

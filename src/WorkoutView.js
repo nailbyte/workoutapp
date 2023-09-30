@@ -13,6 +13,8 @@ import {
 } from "firebase/firestore";
 import { AuthContext } from "./AuthContext";
 import { addDoc } from "firebase/firestore";
+import { useTheme } from '@mui/material/styles';
+import { useSnackbar } from 'notistack';
 
 function WorkoutView() {
   const [userData, setUserData] = useState(null);
@@ -21,6 +23,118 @@ function WorkoutView() {
   const { user, handleLogout } = useContext(AuthContext);
 
   const [workoutInputs, setWorkoutInputs] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const { enqueueSnackbar } = useSnackbar();
+
+
+  const theme = useTheme();
+  //DEBUG: TBD REMOVE
+  //const obj = { foo: { bar: "Hello" } };
+  //console.log(obj?.foo?.bar);  // Should print "Hello"
+
+
+  useEffect(() => {
+    if (user) {
+      (async () => {
+        try{
+        const fetchedUserData = await fetchAndSetUserData();
+        const fetchedLastWorkoutLog = await fetchAndSetLastWorkoutLog(fetchedUserData);
+        /*const fetchedTodayWorkoutData = */await fetchAndSetTodayWorkoutData(fetchedUserData, fetchedLastWorkoutLog);
+        enqueueSnackbar('Data loaded successfully.', { variant: 'success' });
+      }
+        catch (err) {
+          setError(err.message);
+        }
+        finally {
+          setLoading(false);
+          console.log("Data loaded successfully.");
+        }
+
+      })();
+    }
+  }, [user]);
+
+  const fetchAndSetUserData = async () => {
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userDocRef);
+      if (!userSnap.exists()) {
+        throw new Error("User data not found.");
+      }
+      const userData = {
+        uid: user.uid,
+        ...userSnap.data(),
+      };
+      setUserData(userData);
+      return userData;
+    }
+    catch (err) {
+      enqueueSnackbar('Failed to fetch user data. Please try again later.', { variant: 'error' });
+      //setError("Failed to fetch user data. Please refresh or try again later.");
+      console.error("Error getting User details:", err);
+    }
+    
+  };
+
+  const fetchAndSetLastWorkoutLog = async (fetchedUserData) => {
+    const q = query(
+      collection(db, "workoutLogs"),
+      where("user", "==", fetchedUserData.uid),
+      where("WorkoutTemplate", "==", fetchedUserData.currentWorkoutTemplate),
+      orderBy("date", "desc"),
+      limit(1)
+    );
+    try{
+      const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const lastWorkoutLog = querySnapshot.docs[0].data();
+      setLastWorkoutLog(lastWorkoutLog);
+      return lastWorkoutLog;
+    }
+    return null;
+  }
+  catch (err) {
+    enqueueSnackbar('Failed to fetch workout logs. Please try again later.', { variant: 'error' });
+    //setError("Failed to fetch workout logs. Please refresh or try again later.");
+    console.error("Trouble getting workout logs: ", err);
+  }
+
+  };
+
+  const fetchAndSetTodayWorkoutData = async (fetchedUserData, fetchedLastWorkoutLog) => {
+    try{
+    const workoutDocRef = doc(db, "workoutTemplates", fetchedUserData.currentWorkoutTemplate);
+    const docSnap = await getDoc(workoutDocRef);
+    if (docSnap.exists()) {
+      const workoutTemplate = docSnap.data();
+      const lastDay = fetchedLastWorkoutLog ? fetchedLastWorkoutLog.day : "Day0"
+      const nextDayNumber =
+        ((parseInt(lastDay.replace("Day", "")) + 1 - 1) %
+          Object.keys(workoutTemplate.days).length) +
+        1;
+      const nextDay = `Day${nextDayNumber}`;
+      const todayWorkoutData = {
+        day: nextDay,
+        programName: workoutTemplate.programName,
+        ...workoutTemplate.days[nextDay],
+      };
+      setTodayWorkoutData(todayWorkoutData);
+      return todayWorkoutData;
+    }
+    else {
+      throw new Error("Workout template not found.");
+    }
+  }
+  catch (err) {
+    enqueueSnackbar('Failed to Workout Program details. Please try again later.', { variant: 'error' });
+    //setError("Failed to Workout Program details. Please refresh or try again later.");
+    console.error("Error getting workout template:", err);
+  }
+    
+  };
 
   // Function to handle input change
   const handleInputChange = (exercise, setIndex, type, value) => {
@@ -48,14 +162,11 @@ function WorkoutView() {
 
   const handleFinish = async () => {
     try {
-      // Calculate the day based on the logic you've provided previously
-      //const nextDayNumber = (parseInt((lastWorkoutLog && lastWorkoutLog.day ? lastWorkoutLog.day : "Day0").replace("Day", "")) % Object.keys(todayWorkoutData).length) + 1;
-      //const nextDay = `Day${nextDayNumber}`;
       // Structure the data
       const workoutLogData = {
         WorkoutTemplate: userData.currentWorkoutTemplate, // Assuming you've stored user's current workout template in the user state
         day: todayWorkoutData.day,
-        user: userData.uid,// user.uid,
+        user: userData.uid, // user.uid,
         date: new Date().toISOString(),
         timeStarted: null, // Set this to the actual time when you implement the "Start Workout" feature
         timeFinished: new Date().toISOString(),
@@ -77,71 +188,19 @@ function WorkoutView() {
       console.error("Error adding document: ", error);
     }
   };
-
-  const fetchUserData = async () => {
-    const userDocRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userDocRef);
-    return {
-      uid: user.uid,
-      ...userSnap.data()
-    };
-  };
-
-  const fetchLastWorkoutLog = async (userId) => {
-    const q = query(
-      collection(db, "workoutLogs"),
-      where("user", "==", userId),
-      orderBy("date", "desc"),
-      limit(1)
-    );
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      return querySnapshot.docs[0].data();
-    }
-    return null;
-  };
-
-  const fetchTodayWorkoutData = async (workoutTemplateId, lastDay) => {
-    const workoutDocRef = doc(db, "workoutTemplates", workoutTemplateId);
-    const docSnap = await getDoc(workoutDocRef);
-    if (docSnap.exists()) {
-      const workoutTemplate = docSnap.data();
-      const nextDayNumber =
-        ((parseInt(lastDay.replace("Day", "")) + 1 - 1) %
-          Object.keys(workoutTemplate.days).length) +
-        1;
-      const nextDay = `Day${nextDayNumber}`;
-      return {
-        day: nextDay,
-        ...workoutTemplate.days[nextDay]
-      };
-      //return workoutTemplate.days[nextDay];
-    }
-    return null;
-  };
-
-  useEffect(() => {
-    if (user) {
-      (async () => {
-        const userData = await fetchUserData();
-        const workoutLog = await fetchLastWorkoutLog(user.uid);
-        const nextWorkout = await fetchTodayWorkoutData(
-          userData.currentWorkoutTemplate,
-          workoutLog ? workoutLog.day : "Day0"
-        );
-
-        setUserData(userData);
-        setLastWorkoutLog(workoutLog);
-        setTodayWorkoutData(nextWorkout);
-      })();
-    }
-  }, [user /*, lastWorkoutLog*/]);
-
+  if (loading) {
+    return <p>Loading...</p>;
+ }
   return (
-    <div>
+    <div
+      style={{ maxWidth: "400px", margin: "0 auto", padding: theme.spacing(2) }}
+    >
       {/* Section 1: Last Workout */}
       {lastWorkoutLog && (
         <div>
+          <Typography variant="h3">
+            Program: {todayWorkoutData.programName}
+          </Typography>
           <Typography variant="h5">
             Last Workout: {lastWorkoutLog.day}
           </Typography>
@@ -160,14 +219,18 @@ function WorkoutView() {
 
       {/* Section 2: Today's Workout Input Fields */}
       {todayWorkoutData && (
-        <div>
-          <Typography variant="h5">Today's Workout: {todayWorkoutData.day}</Typography>
+        <div style={{ marginTop: theme.spacing(4) }}>
+          <Typography variant="h5" gutterBottom>
+            Today's Workout: {todayWorkoutData.day}
+          </Typography>
           {Object.entries(todayWorkoutData).map(
             ([exercise, { sets, reps }]) => (
-              <div key={exercise}>
-                <Typography variant="h6">{exercise}</Typography>
+              <div key={exercise} style={{ marginBottom: theme.spacing(3) }}>
+                <Typography variant="h6" gutterBottom>
+                  {exercise}
+                </Typography>
                 {[...Array(sets)].map((_, index) => (
-                  <div key={index}>
+                  <div key={index} style={{ marginBottom: theme.spacing(2) }}>
                     <Typography>Set {index + 1}</Typography>
                     <TextField
                       label="Weight"
@@ -214,11 +277,13 @@ function WorkoutView() {
               </div>
             )
           )}
-          <Button onClick={handleFinish}>Finish Workout</Button>
+          <Button variant="contained" color="primary" onClick={handleFinish}>
+            Finish Workout
+          </Button>
         </div>
       )}
 
-      <Grid container spacing={2}>
+      <Grid container spacing={2} style={{ marginTop: theme.spacing(4) }}>
         <Grid item xs={12}>
           <Button
             fullWidth
