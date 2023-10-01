@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { TextField, Card, CardContent } from '@mui/material';
+import React, { useState } from "react";
+import { TextField, Card, CardContent } from "@mui/material";
+import exercisesList from "./ExerciseList";
+import DeleteIcon from "@mui/icons-material/Delete";
+import IconButton from "@mui/material/IconButton";
 
 const ExerciseComponent = ({ exerciseNumber }) => {
   const [sets, setSets] = useState([{ weight: 10, reps: 10 }]);
@@ -7,6 +10,12 @@ const ExerciseComponent = ({ exerciseNumber }) => {
   const handleAddSet = () => {
     const newSets = [...sets, { weight: 10, reps: 10 }];
     setSets(newSets);
+  };
+
+  const handleDeleteSet = (setIndex) => {
+    const updatedSets = [...sets];
+    updatedSets.splice(setIndex, 1);
+    setSets(updatedSets);
   };
 
   const isWeightValid = (weight) => {
@@ -19,48 +28,69 @@ const ExerciseComponent = ({ exerciseNumber }) => {
 
   const handleInputChange = (index, field, value) => {
     const newSets = [...sets];
-    if (field === 'weight' && !isWeightValid(value)) return;
-    if (field === 'reps' && !isRepValid(value)) return;
+    if (field === "weight" && !isWeightValid(value)) return;
+    if (field === "reps" && !isRepValid(value)) return;
     newSets[index][field] = value;
     setSets(newSets);
   };
 
   return (
-    <Card variant="outlined" style={{ marginBottom: '16px' }}>
+    <Card variant="outlined" style={{ marginBottom: "16px" }}>
       <CardContent>
         <h3>Exercise {exerciseNumber}:</h3>
         {sets.map((set, index) => (
-          <div key={index} className="set" style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+          <div
+            key={index}
+            className="set"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "8px",
+            }}
+          >
             Set {index + 1}:
             <TextField
               type="number"
               inputProps={{ step: "0.5", min: "0", max: "999" }}
               sx={{
-                margin: '0 4px',
-                '& .MuiInputBase-input': {
-                  paddingTop: '0px',   // Adjust top padding
-                  paddingBottom: '0px'  // Adjust bottom padding
-                }
+                margin: "0 4px",
+                "& .MuiInputBase-input": {
+                  paddingTop: "0px", // Adjust top padding
+                  paddingBottom: "0px", // Adjust bottom padding
+                },
               }}
               value={set.weight}
-              onChange={e => handleInputChange(index, 'weight', e.target.value)}
-            /> Kg X 
+              onChange={(e) =>
+                handleInputChange(index, "weight", e.target.value)
+              }
+            />{" "}
+            Kg X
             <TextField
               type="number"
               inputProps={{ min: "0", max: "999" }}
               sx={{
-                margin: '0 4px',
-                '& .MuiInputBase-input': {
-                  paddingTop: '0px',   // Adjust top padding
-                  paddingBottom: '0px'  // Adjust bottom padding
-                }
+                margin: "0 4px",
+                "& .MuiInputBase-input": {
+                  paddingTop: "0px", // Adjust top padding
+                  paddingBottom: "0px", // Adjust bottom padding
+                },
               }}
               value={set.reps}
-              onChange={e => handleInputChange(index, 'reps', e.target.value)}
-            /> reps
+              onChange={(e) => handleInputChange(index, "reps", e.target.value)}
+            />{" "}
+            reps
+            <IconButton
+              onClick={() => handleDeleteSet(index)}
+              size="small"
+              style={{ marginLeft: "10px" }}
+            >
+              <DeleteIcon fontSize="inherit" />
+            </IconButton>
           </div>
         ))}
-        <button style={{ marginTop: '10px' }} onClick={handleAddSet}>Add Next Set</button>
+        <button style={{ marginTop: "10px" }} onClick={handleAddSet}>
+          Add Next Set
+        </button>
       </CardContent>
     </Card>
   );
