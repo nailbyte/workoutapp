@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { db } from "./firebase";
+import { db } from "../firebase";
 import { Paper, Button, Grid, Typography, TextField } from "@mui/material";
 import {
   doc,
@@ -11,7 +11,7 @@ import {
   orderBy,
   limit,
 } from "firebase/firestore";
-import { AuthContext } from "./AuthContext";
+import { AuthContext } from "../components/AuthContext";
 import { addDoc } from "firebase/firestore";
 import { useTheme } from '@mui/material/styles';
 import { useSnackbar } from 'notistack';

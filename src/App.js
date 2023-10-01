@@ -1,16 +1,16 @@
 import React, { useContext } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { Container, CssBaseline } from "@mui/material";
-import AuthView from "./AuthView";
-import WorkoutView from './WorkoutView';
+import AuthView from "./views/AuthView";
+import WorkoutView from './views/WorkoutView';
 import WorkoutProgramForm from './WorkoutProgramForm';  // Make sure you import this
 import WorkoutProgramFormCF from './WorkoutProgramFormCF';
 import HomePage from './HomePage'; // Make sure you import this
-import { AuthProvider, AuthContext } from './AuthContext';
+import { AuthProvider, AuthContext } from './components/AuthContext';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
 import { SnackbarProvider } from 'notistack';
-import CreateProgramView from "./CreateProgramView";
+import CreateProgramView from "./views/CreateProgramView";
 
 function Main() {
     const { user } = useContext(AuthContext);

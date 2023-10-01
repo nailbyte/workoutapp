@@ -3,7 +3,7 @@ import React, { useState, useContext } from "react";
 import { Button, TextField, Grid, Typography, Paper } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 
-import { AuthContext } from "./AuthContext";
+import { AuthContext } from "../components/AuthContext";
 import { useTheme } from '@mui/material/styles';
 import { useSnackbar } from 'notistack';
 

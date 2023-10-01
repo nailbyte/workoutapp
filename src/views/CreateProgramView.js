@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Card, CardContent, TextField } from "@mui/material";
-import DayComponent from "./DayComponent";
+import DayComponent from "../components/CreateProgram/DayComponent";
 
 const CreateProgramView = () => {
   const [programName, setProgramName] = useState("");

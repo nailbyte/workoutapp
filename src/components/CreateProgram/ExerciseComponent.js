@@ -2,7 +2,7 @@ import React from "react";
 import { TextField, Card, CardContent, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import CustomTextField from './components/common/CustomTextField';
+import CustomTextField from '../common/CustomTextField';
 
 const ExerciseComponent = ({ sets, updateSets, exerciseNumber }) => {
   
