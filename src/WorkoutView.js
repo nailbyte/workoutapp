@@ -17,6 +17,8 @@ import { useTheme } from '@mui/material/styles';
 import { useSnackbar } from 'notistack';
 
 function WorkoutView() {
+  console.log("WorkoutView rendered"); //TBD remove this
+
   const [userData, setUserData] = useState(null);
   const [lastWorkoutLog, setLastWorkoutLog] = useState(null);
   const [todayWorkoutData, setTodayWorkoutData] = useState(null);
@@ -28,16 +30,12 @@ function WorkoutView() {
 
   const { enqueueSnackbar } = useSnackbar();
 
-
   const theme = useTheme();
-  //DEBUG: TBD REMOVE
-  //const obj = { foo: { bar: "Hello" } };
-  //console.log(obj?.foo?.bar);  // Should print "Hello"
-
 
   useEffect(() => {
     if (user) {
       (async () => {
+        console.log('useEffect triggered for user:', user);
         try{
         const fetchedUserData = await fetchAndSetUserData();
         const fetchedLastWorkoutLog = await fetchAndSetLastWorkoutLog(fetchedUserData);
@@ -119,8 +117,9 @@ function WorkoutView() {
       const todayWorkoutData = {
         day: nextDay,
         programName: workoutTemplate.programName,
-        ...workoutTemplate.days[nextDay],
+        exercises: workoutTemplate.days[nextDay]
       };
+      
       setTodayWorkoutData(todayWorkoutData);
       return todayWorkoutData;
     }
@@ -191,7 +190,10 @@ function WorkoutView() {
   if (loading) {
     return <p>Loading...</p>;
  }
-  return (
+ console.log('userData:', userData);
+ console.log('lastWorkoutLog:', lastWorkoutLog);
+ console.log('todayWorkoutData:', todayWorkoutData); 
+ return (
     <div
       style={{ maxWidth: "400px", margin: "0 auto", padding: theme.spacing(2) }}
     >
@@ -223,7 +225,7 @@ function WorkoutView() {
           <Typography variant="h5" gutterBottom>
             Today's Workout: {todayWorkoutData.day}
           </Typography>
-          {Object.entries(todayWorkoutData).map(
+          {Object.entries(todayWorkoutData.exercises).map(
             ([exercise, { sets, reps }]) => (
               <div key={exercise} style={{ marginBottom: theme.spacing(3) }}>
                 <Typography variant="h6" gutterBottom>
