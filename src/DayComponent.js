@@ -1,40 +1,34 @@
 import React, { useState, useEffect } from "react";
 import ExerciseComponent from "./ExerciseComponent";
-import {
-  Button,
-  Card,
-  CardContent,
-  TextField,
-  IconButton,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import { Button, TextField } from "@mui/material";
 
 const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
   const [exercises, setExercises] = useState([]);
   const [dayName, setDayName] = useState(`Day ${dayNumber}`);
   const [selectedDayToCopy, setSelectedDayToCopy] = useState(1);
 
-  useEffect(() => {
-    setExercisesForDay(exercises);  // This function was passed as a prop from the parent
-}, [exercises]);
+  const updateExerciseSets = (exerciseNumber, newSets) => {
+    const newExercises = [...exercises];
+    newExercises[exerciseNumber] = { ...newExercises[exerciseNumber], sets: newSets };
+    setExercises(newExercises);
+  };
 
+  useEffect(() => {
+    setExercisesForDay(exercises);
+  }, [exercises]);
 
   const handleAddExercise = () => {
-    const newExercises = [...exercises, {}];
+    const newExercises = [...exercises, { sets: [{ weight: 10, reps: 10 }] }];
     setExercises(newExercises);
-    // Notify the parent
-    setExercisesForDay(newExercises);
   };
 
   const handleCopyExercises = (selectedDay) => {
-    const selectedDayExercises = allDaysExercises[selectedDay - 1];  // adjust indexing since array index starts from 0
+    const selectedDayExercises = allDaysExercises[selectedDay - 1];
     if (selectedDayExercises) {
-      // Deep copy the exercises
       const copiedExercises = JSON.parse(JSON.stringify(selectedDayExercises));
       setExercises(copiedExercises);
     }
   };
-  
 
   return (
     <div className="day">
@@ -51,7 +45,12 @@ const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
       </h2>
 
       {exercises.map((exercise, index) => (
-        <ExerciseComponent key={index} exercise={exercise} />
+        <ExerciseComponent
+          key={index}
+          exerciseNumber={index}
+          sets={exercise.sets}
+          updateSets={updateExerciseSets}
+        />
       ))}
 
       <button onClick={handleAddExercise}>Add Next Exercise</button>
@@ -59,27 +58,14 @@ const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
       {dayNumber > 1 && (
         <div>
           <label>Copy exercises from: </label>
-          <select
-            value={selectedDayToCopy}
-            onChange={(e) => setSelectedDayToCopy(e.target.value)}
-            //onChange={(e) => handleCopyExercises(e.target.value)}
-          >
-            {/* Provide options up to current day minus one */}
-            {Array.from({ length: dayNumber - 1 }, (_, i) => i + 1).map(
-              (day) => (
-                <option key={day} value={day}>
-                  Day {day}
-                </option>
-              )
-            )}
+          <select value={selectedDayToCopy} onChange={(e) => setSelectedDayToCopy(e.target.value)}>
+            {Array.from({ length: dayNumber - 1 }, (_, i) => i + 1).map((day) => (
+              <option key={day} value={day}>
+                Day {day}
+              </option>
+            ))}
           </select>
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            onClick={() => handleCopyExercises(selectedDayToCopy)}
-            style={{ marginLeft: "10px" }}
-          >
+          <Button variant="contained" color="primary" size="small" onClick={() => handleCopyExercises(selectedDayToCopy)}>
             Copy
           </Button>
         </div>
