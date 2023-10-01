@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { db } from "./firebase";
 import { Button, Grid, Typography, TextField } from "@mui/material";
 import {
@@ -26,35 +26,12 @@ function WorkoutView() {
 
   const [workoutInputs, setWorkoutInputs] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const theme = useTheme();
 
-  useEffect(() => {
-    if (user) {
-      (async () => {
-        console.log('useEffect triggered for user:', user);
-        try{
-        const fetchedUserData = await fetchAndSetUserData();
-        const fetchedLastWorkoutLog = await fetchAndSetLastWorkoutLog(fetchedUserData);
-        /*const fetchedTodayWorkoutData = */await fetchAndSetTodayWorkoutData(fetchedUserData, fetchedLastWorkoutLog);
-        enqueueSnackbar('Data loaded successfully.', { variant: 'success' });
-      }
-        catch (err) {
-          setError(err.message);
-        }
-        finally {
-          setLoading(false);
-          console.log("Data loaded successfully.");
-        }
-
-      })();
-    }
-  }, [user]);
-
-  const fetchAndSetUserData = async () => {
+  const fetchAndSetUserData = useCallback(async () => {
     try {
       const userDocRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userDocRef);
@@ -67,16 +44,14 @@ function WorkoutView() {
       };
       setUserData(userData);
       return userData;
-    }
-    catch (err) {
+    } catch (err) {
       enqueueSnackbar('Failed to fetch user data. Please try again later.', { variant: 'error' });
-      //setError("Failed to fetch user data. Please refresh or try again later.");
       console.error("Error getting User details:", err);
     }
-    
-  };
+  }, [enqueueSnackbar, user, setUserData]);
+  
 
-  const fetchAndSetLastWorkoutLog = async (fetchedUserData) => {
+  const fetchAndSetLastWorkoutLog = useCallback(async (fetchedUserData) => {
     const q = query(
       collection(db, "workoutLogs"),
       where("user", "==", fetchedUserData.uid),
@@ -84,56 +59,68 @@ function WorkoutView() {
       orderBy("date", "desc"),
       limit(1)
     );
-    try{
+    try {
       const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
-      const lastWorkoutLog = querySnapshot.docs[0].data();
-      setLastWorkoutLog(lastWorkoutLog);
-      return lastWorkoutLog;
+      if (!querySnapshot.empty) {
+        const lastWorkoutLog = querySnapshot.docs[0].data();
+        setLastWorkoutLog(lastWorkoutLog);
+        return lastWorkoutLog;
+      }
+      return null;
+    } catch (err) {
+      enqueueSnackbar('Failed to fetch workout logs. Please try again later.', { variant: 'error' });
+      console.error("Trouble getting workout logs: ", err);
     }
-    return null;
-  }
-  catch (err) {
-    enqueueSnackbar('Failed to fetch workout logs. Please try again later.', { variant: 'error' });
-    //setError("Failed to fetch workout logs. Please refresh or try again later.");
-    console.error("Trouble getting workout logs: ", err);
-  }
+  }, [enqueueSnackbar, setLastWorkoutLog]);
+  
 
-  };
+  const fetchAndSetTodayWorkoutData = useCallback(async (fetchedUserData, fetchedLastWorkoutLog) => {
+    try {
+      const workoutDocRef = doc(db, "workoutTemplates", fetchedUserData.currentWorkoutTemplate);
+      const docSnap = await getDoc(workoutDocRef);
+      if (docSnap.exists()) {
+        const workoutTemplate = docSnap.data();
+        const lastDay = fetchedLastWorkoutLog ? fetchedLastWorkoutLog.day : "Day0"
+        const nextDayNumber =
+          ((parseInt(lastDay.replace("Day", "")) + 1 - 1) %
+            Object.keys(workoutTemplate.days).length) +
+          1;
+        const nextDay = `Day${nextDayNumber}`;
+        const todayWorkoutData = {
+          day: nextDay,
+          programName: workoutTemplate.programName,
+          exercises: workoutTemplate.days[nextDay]
+        };
+  
+        setTodayWorkoutData(todayWorkoutData);
+        return todayWorkoutData;
+      } else {
+        throw new Error("Workout template not found.");
+      }
+    } catch (err) {
+      enqueueSnackbar('Failed to fetch Workout Program details. Please try again later.', { variant: 'error' });
+      console.error("Error getting workout template:", err);
+    }
+  }, [enqueueSnackbar, setTodayWorkoutData]);
 
-  const fetchAndSetTodayWorkoutData = async (fetchedUserData, fetchedLastWorkoutLog) => {
-    try{
-    const workoutDocRef = doc(db, "workoutTemplates", fetchedUserData.currentWorkoutTemplate);
-    const docSnap = await getDoc(workoutDocRef);
-    if (docSnap.exists()) {
-      const workoutTemplate = docSnap.data();
-      const lastDay = fetchedLastWorkoutLog ? fetchedLastWorkoutLog.day : "Day0"
-      const nextDayNumber =
-        ((parseInt(lastDay.replace("Day", "")) + 1 - 1) %
-          Object.keys(workoutTemplate.days).length) +
-        1;
-      const nextDay = `Day${nextDayNumber}`;
-      const todayWorkoutData = {
-        day: nextDay,
-        programName: workoutTemplate.programName,
-        exercises: workoutTemplate.days[nextDay]
-      };
-      
-      setTodayWorkoutData(todayWorkoutData);
-      return todayWorkoutData;
+
+  useEffect(() => {
+    if (user) {
+      (async () => {
+        try {
+          const fetchedUserData = await fetchAndSetUserData();
+          const fetchedLastWorkoutLog = await fetchAndSetLastWorkoutLog(fetchedUserData);
+          await fetchAndSetTodayWorkoutData(fetchedUserData, fetchedLastWorkoutLog);
+          enqueueSnackbar('Data loaded successfully.', { variant: 'success' });
+        } catch (err) {
+          enqueueSnackbar('Failed to load data. Please try again later.', { variant: 'error' });
+        } finally {
+          setLoading(false);
+        }
+      })();
     }
-    else {
-      throw new Error("Workout template not found.");
-    }
-  }
-  catch (err) {
-    enqueueSnackbar('Failed to Workout Program details. Please try again later.', { variant: 'error' });
-    //setError("Failed to Workout Program details. Please refresh or try again later.");
-    console.error("Error getting workout template:", err);
-  }
+  }, [user, enqueueSnackbar, fetchAndSetLastWorkoutLog, fetchAndSetTodayWorkoutData, fetchAndSetUserData]);
     
-  };
 
   // Function to handle input change
   const handleInputChange = (exercise, setIndex, type, value) => {
