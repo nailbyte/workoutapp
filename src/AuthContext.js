@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { auth } from './firebase';
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut,  createUserWithEmailAndPassword } from "firebase/auth";
 import { useSnackbar } from 'notistack';
 
 const AuthContext = React.createContext();
@@ -24,20 +24,20 @@ function AuthProvider({ children }) {
 
   const handleSignIn = async (email, password) => {
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email, password);
     }
     catch (err) {
-      enqueueSnackbar("Error Signing in:" , { variant: 'error' });
+      enqueueSnackbar("Error Signing in: " + err.message, { variant: 'error' });
       console.log(err);
     }
   };
 
   const handleSignUp = async (email, password) => {
     try {
-      const result = await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
     }
     catch (err) {
-      enqueueSnackbar("Error Signing up:" , { variant: 'error' });
+      enqueueSnackbar("Error Signing up:" + err.message, { variant: 'error' });
       console.log(err);
     }
   };
@@ -45,10 +45,10 @@ function AuthProvider({ children }) {
   const handleGoogleSignIn = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
+      await signInWithPopup(auth, provider);
     }
     catch (err) {
-      enqueueSnackbar("Error Signing in with Google:" , { variant: 'error' });
+      enqueueSnackbar("Error Signing in with Google:" + err.message, { variant: 'error' });
       console.log(err);
     }
   };
@@ -56,12 +56,12 @@ function AuthProvider({ children }) {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      setUser(null);
     }
     catch (err) {
-      enqueueSnackbar("Error Signing out:" , { variant: 'error' });
+      enqueueSnackbar("Error Signing out:" + err.message, { variant: 'error' });
       console.log(err);
     }
-    setUser(null);
   };
 
   const contextValue = {
