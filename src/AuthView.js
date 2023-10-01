@@ -135,5 +135,4 @@ function AuthView() {
     </Paper>
   );
 }
-
 export default AuthView;

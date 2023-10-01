@@ -3,14 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { auth } from './firebase';
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut,  createUserWithEmailAndPassword } from "firebase/auth";
-import { useSnackbar } from 'notistack';
 
 const AuthContext = React.createContext();
 
 function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  //const [loading, setLoading] = useState(true);
-  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     const cancelAuthListener = auth.onAuthStateChanged((user) => {
@@ -27,8 +24,7 @@ function AuthProvider({ children }) {
       await signInWithEmailAndPassword(auth, email, password);
     }
     catch (err) {
-      enqueueSnackbar("Error Signing in: " + err.message, { variant: 'error' });
-      console.log(err);
+      throw err;
     }
   };
 
@@ -37,8 +33,7 @@ function AuthProvider({ children }) {
       await createUserWithEmailAndPassword(auth, email, password);
     }
     catch (err) {
-      enqueueSnackbar("Error Signing up:" + err.message, { variant: 'error' });
-      console.log(err);
+      throw err;
     }
   };
 
@@ -48,8 +43,7 @@ function AuthProvider({ children }) {
       await signInWithPopup(auth, provider);
     }
     catch (err) {
-      enqueueSnackbar("Error Signing in with Google:" + err.message, { variant: 'error' });
-      console.log(err);
+      throw err;
     }
   };
 
@@ -59,8 +53,7 @@ function AuthProvider({ children }) {
       setUser(null);
     }
     catch (err) {
-      enqueueSnackbar("Error Signing out:" + err.message, { variant: 'error' });
-      console.log(err);
+      throw err;
     }
   };
 

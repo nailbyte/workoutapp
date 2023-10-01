@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { db } from "./firebase";
-import { Button, Grid, Typography, TextField } from "@mui/material";
+import { Paper, Button, Grid, Typography, TextField } from "@mui/material";
 import {
   doc,
   getDoc,
@@ -180,79 +180,108 @@ function WorkoutView() {
  console.log('userData:', userData);
  console.log('lastWorkoutLog:', lastWorkoutLog);
  console.log('todayWorkoutData:', todayWorkoutData); 
+ 
  return (
-    <div
-      style={{ maxWidth: "400px", margin: "0 auto", padding: theme.spacing(2) }}
-    >
-      {/* Section 1: Last Workout */}
-      {lastWorkoutLog && (
-        <div>
-          <Typography variant="h3">
-            Program: {todayWorkoutData.programName}
-          </Typography>
-          <Typography variant="h5">
-            Last Workout: {lastWorkoutLog.day}
-          </Typography>
-          {Object.entries(lastWorkoutLog.exercises).map(([exercise, sets]) => (
-            <div key={exercise}>
-              <Typography variant="h6">{exercise}</Typography>
-              {sets.map((set, index) => (
-                <Typography key={index}>
-                  Set {index + 1}: Weight: {set.weight}, Reps: {set.reps}
-                </Typography>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
+  <div style={{ maxWidth: "460px", margin: "0 auto", padding: theme.spacing(2) }}>
+    <Typography variant="h2" gutterBottom style={{ fontWeight: 600, textAlign: 'center' }}>
+      Program: {todayWorkoutData.programName}
+    </Typography>
+    
+    {/* Section 1: Last Workout */}
+    {lastWorkoutLog && (
+      <Paper style={{ padding: theme.spacing(2), marginBottom: theme.spacing(3) }}>
+        <Typography variant="h5" gutterBottom>
+          Last Workout: {lastWorkoutLog.day}
+        </Typography>
+        {Object.entries(lastWorkoutLog.exercises).map(([exercise, sets]) => (
+          <Paper key={exercise} style={{ margin: theme.spacing(2, 0), padding: theme.spacing(2) }}>
+            <Typography variant="h6" gutterBottom>
+              {exercise}
+            </Typography>
+            {sets.map((set, index) => (
+              <Typography key={index}>
+                Set {index + 1}: {set.weight} Kg x {set.reps} reps
+              </Typography>
+            ))}
+          </Paper>
+        ))}
+      </Paper>
+    )}
 
-      {/* Section 2: Today's Workout Input Fields */}
-      {todayWorkoutData && (
-        <div style={{ marginTop: theme.spacing(4) }}>
-          <Typography variant="h5" gutterBottom>
-            Today's Workout: {todayWorkoutData.day}
-          </Typography>
-          {Object.entries(todayWorkoutData.exercises).map(
-            ([exercise, { sets, reps }]) => (
-              <div key={exercise} style={{ marginBottom: theme.spacing(3) }}>
-                <Typography variant="h6" gutterBottom>
-                  {exercise}
-                </Typography>
-                {[...Array(sets)].map((_, index) => (
-                  <div key={index} style={{ marginBottom: theme.spacing(2) }}>
+    {/* Section 2: Today's Workout Input Fields */}
+    {todayWorkoutData && (
+      <Paper style={{ padding: theme.spacing(2), marginBottom: theme.spacing(3) }}>
+        <Typography variant="h5" gutterBottom>
+          Today's Workout: {todayWorkoutData.day}
+        </Typography>
+        {Object.entries(todayWorkoutData.exercises).map(
+          ([exercise, { sets, reps }]) => (
+            <Paper key={exercise} style={{ margin: theme.spacing(2, 0), padding: theme.spacing(2) }}>
+              <Typography variant="h6" gutterBottom>
+                {exercise}
+              </Typography>
+              {[...Array(sets)].map((_, index) => (
+                <Grid container key={index} alignItems="center" spacing={2} style={{ marginBottom: theme.spacing(1) }}>
+                  <Grid item>
                     <Typography>Set {index + 1}</Typography>
+                  </Grid>
+                  <Grid item>
                     <TextField
-                      label="Weight"
+                      label="weight"
                       variant="outlined"
-                      margin="normal"
-                      fullWidth
                       value={
                         workoutInputs[exercise] &&
                         workoutInputs[exercise][index]
                           ? workoutInputs[exercise][index].weight
                           : ""
                       }
-                      onChange={(e) =>
+                      type="number"
+                      inputProps={{
+                          step: "0.5",
+                          pattern: "^-?\\d*(\\.5)?$"
+                      }}
+                      onChange={(e) =>{
+                        if (!e.target.validity.valid) {
+                          e.preventDefault();
+                          return;
+                      }
                         handleInputChange(
                           exercise,
                           index,
                           "weight",
                           e.target.value
                         )
+                        }
                       }
+                      style={{ width: '80px' }} // width for 3-digit number
+                      InputProps={{
+                        style: { padding: '0px', fontSize: '1.1rem' }
+                    }}
                     />
+                  </Grid>
+                  <Grid item>
+                    <Typography>Kg  x </Typography>
+                  </Grid>
+                  <Grid item>
                     <TextField
-                      label={`Reps (suggested: ${reps})`}
+                      label="reps"
                       variant="outlined"
-                      margin="normal"
-                      fullWidth
                       value={
                         workoutInputs[exercise] &&
                         workoutInputs[exercise][index]
                           ? workoutInputs[exercise][index].reps
                           : ""
                       }
-                      onChange={(e) =>
+                      type="number"
+                      inputProps={{
+                          step: "1",
+                          min: "0"
+                      }}
+                      onChange={(e) =>{
+                        if (!e.target.validity.valid) {
+                          e.preventDefault();
+                          return;
+                      }              
                         handleInputChange(
                           exercise,
                           index,
@@ -260,18 +289,27 @@ function WorkoutView() {
                           e.target.value
                         )
                       }
+                      }
+                      style={{ width: '70px' }} // width for 2-digit number
+                      InputProps={{
+                        style: { padding: '0px', fontSize: '1.1rem' }
+                    }}
                     />
-                  </div>
-                ))}
-              </div>
+                  </Grid>
+                  <Grid item>
+                    <Typography>reps</Typography>
+                  </Grid>
+                </Grid>
+              ))}
+              </Paper>
             )
           )}
           <Button variant="contained" color="primary" onClick={handleFinish}>
             Finish Workout
           </Button>
-        </div>
+        </Paper>
       )}
-
+  
       <Grid container spacing={2} style={{ marginTop: theme.spacing(4) }}>
         <Grid item xs={12}>
           <Button
@@ -286,6 +324,7 @@ function WorkoutView() {
       </Grid>
     </div>
   );
+
 }
 
 export default WorkoutView;
