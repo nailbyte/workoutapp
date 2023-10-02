@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ExerciseComponent from "./ExerciseComponent";
 import { Button, TextField } from "@mui/material";
+import {LevelTwoStyle} from "../../styles/LevelledStyle";
 
 const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
   const [exercises, setExercises] = useState([]);
@@ -31,9 +32,11 @@ const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
   };
 
   return (
+   
+    <LevelTwoStyle>
     <div className="day">
+
       <h2>
-        Day {dayNumber}{" "}
         <TextField
           label="Day Name"
           value={dayName}
@@ -53,24 +56,42 @@ const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
         />
       ))}
 
-      <button onClick={handleAddExercise}>Add Next Exercise</button>
-
+      <Button
+        sx={{ m: 1 }}
+        variant="outlined"
+        color="primary"
+        onClick={handleAddExercise}
+      >
+        Add Exercise
+      </Button>
       {dayNumber > 1 && (
         <div>
           <label>Copy exercises from: </label>
-          <select value={selectedDayToCopy} onChange={(e) => setSelectedDayToCopy(e.target.value)}>
-            {Array.from({ length: dayNumber - 1 }, (_, i) => i + 1).map((day) => (
-              <option key={day} value={day}>
-                Day {day}
-              </option>
-            ))}
+          <select
+            value={selectedDayToCopy}
+            onChange={(e) => setSelectedDayToCopy(e.target.value)}
+          >
+            {Array.from({ length: dayNumber - 1 }, (_, i) => i + 1).map(
+              (day) => (
+                <option key={day} value={day}>
+                  Day {day}
+                </option>
+              )
+            )}
           </select>
-          <Button variant="contained" color="primary" size="small" onClick={() => handleCopyExercises(selectedDayToCopy)}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={() => handleCopyExercises(selectedDayToCopy)}
+          >
             Copy
           </Button>
         </div>
       )}
     </div>
+    </LevelTwoStyle>
+   
   );
 };
 

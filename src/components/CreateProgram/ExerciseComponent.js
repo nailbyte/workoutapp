@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { TextField, Card, CardContent, IconButton, Autocomplete } from "@mui/material";
+import { TextField, Button, CardContent, IconButton, Autocomplete, Paper } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import exerciseList from '../../utils/ExerciseList';
 import CustomTextField from '../common/CustomTextField';
+import {LevelThreeStyle, LevelFourStyle} from "../../styles/LevelledStyle";
 
 const ExerciseComponent = ({ sets, updateSets, exerciseNumber }) => {
   
@@ -27,8 +28,8 @@ const ExerciseComponent = ({ sets, updateSets, exerciseNumber }) => {
   const exerciseOptions = Object.keys(exerciseList);
 
   return (
-    <Card variant="outlined" style={{ marginBottom: "16px" }}>
-      <CardContent>
+    <Paper elevation={3} style={{ marginBottom: '8px' }}>  
+      <LevelThreeStyle>
         <h3>Exercise {exerciseNumber + 1}:</h3>
         <Autocomplete
           options={exerciseOptions}
@@ -39,6 +40,8 @@ const ExerciseComponent = ({ sets, updateSets, exerciseNumber }) => {
           )}
         />
         {sets.map((set, index) => (
+          <Paper elevation={2} style={{ marginBottom: '8px' }}>
+          <LevelFourStyle>
           <div
             key={index}
             style={{
@@ -100,8 +103,10 @@ const ExerciseComponent = ({ sets, updateSets, exerciseNumber }) => {
               <DeleteIcon fontSize="inherit" />
             </IconButton>
           </div>
+          </LevelFourStyle>
+          </Paper>
         ))}
-        <button
+        <Button variant="outlined" color="primary" 
           onClick={() => {
             if (selectedExercise && exerciseList[selectedExercise].timed) {
               updateSets(exerciseNumber, [...sets, { time: 30 }]);
@@ -111,9 +116,9 @@ const ExerciseComponent = ({ sets, updateSets, exerciseNumber }) => {
           }}
         >
           Add Next Set
-        </button>
-      </CardContent>
-    </Card>
+        </Button>
+        </LevelThreeStyle>
+    </Paper>
   );
 };
 

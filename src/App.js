@@ -5,13 +5,13 @@ import AuthView from "./views/AuthView";
 import WorkoutView from './views/WorkoutView';
 import WorkoutProgramForm from './WorkoutProgramForm';  // Make sure you import this
 import WorkoutProgramFormCF from './WorkoutProgramFormCF';
-import HomePage from './HomePage'; // Make sure you import this
+import HomePage from './views/HomePage'; // Make sure you import this
 import { AuthProvider, AuthContext } from './components/AuthContext';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
 import { SnackbarProvider } from 'notistack';
 import CreateProgramView from "./views/CreateProgramView";
-
+import Copyright from "./components/common/Copyright";
 function Main() {
     const { user } = useContext(AuthContext);
     console.log('Main rendered with user:', user);
@@ -33,6 +33,7 @@ function Main() {
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </Router>
+            <Copyright sx={{ mt: 5 }} />
         </Container>
     );
 }
