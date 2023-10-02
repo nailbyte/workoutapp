@@ -1,13 +1,19 @@
 import React, { useState } from "react";
-import { TextField, Button, CardContent, IconButton, Autocomplete, Paper } from "@mui/material";
+import {
+  TextField,
+  Button,
+  CardContent,
+  IconButton,
+  Autocomplete,
+  Typography,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import exerciseList from '../../utils/ExerciseList';
-import CustomTextField from '../common/CustomTextField';
-import {LevelThreeStyle, LevelFourStyle} from "../../styles/LevelledStyle";
+import exerciseList from "../../utils/ExerciseList";
+import CustomTextField from "../common/CustomTextField";
+import { LevelThreeStyle, LevelFourStyle } from "../../styles/LevelledStyle";
 
-const ExerciseComponent = ({ sets, updateSets, exerciseNumber }) => {
-  
-  const [selectedExercise, setSelectedExercise] = useState(null);
+const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise }) => {
+  const [selectedExercise, setSelectedExercise] = useState(initialExercise);
 
   const isWeightValid = (weight) => {
     return /^(\d+|\d+\.5)$/.test(weight) && weight <= 999;
@@ -22,34 +28,35 @@ const ExerciseComponent = ({ sets, updateSets, exerciseNumber }) => {
     if (field === "weight" && !isWeightValid(value)) return;
     if (field === "reps" && !isRepValid(value)) return;
     newSets[index][field] = value;
-    updateSets(exerciseNumber, newSets);
+    updateSets({
+      index: exerciseIndex,  // Send the index of the exercise
+      sets: newSets
+    });    
   };
 
   const exerciseOptions = Object.keys(exerciseList);
 
   return (
-    <Paper elevation={3} style={{ marginBottom: '8px' }}>  
-      <LevelThreeStyle>
-        <h3>Exercise {exerciseNumber + 1}:</h3>
-        <Autocomplete
-          options={exerciseOptions}
-          value={selectedExercise}
-          onChange={(event, newValue) => setSelectedExercise(newValue)}
-          renderInput={(params) => (
-            <TextField {...params} label="Exercise" variant="outlined" />
-          )}
-        />
-        {sets.map((set, index) => (
-          <Paper elevation={2} style={{ marginBottom: '8px' }}>
-          <LevelFourStyle>
-          <div
-            key={index}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: "8px",
-            }}
-          >
+    <LevelThreeStyle>
+      <Typography>Ex {exerciseIndex + 1}:</Typography>
+      <Autocomplete
+        options={exerciseOptions}
+        value={selectedExercise}
+        onChange={(event, newValue) => {
+          setSelectedExercise(newValue);
+          updateSets({
+            index: exerciseIndex,
+            exerciseName: newValue, 
+            sets: sets,
+          });
+        }}
+        renderInput={(params) => (
+          <TextField {...params} label="Exercise" variant="outlined" />
+        )}
+      />
+      {sets.map((set, index) => (
+        <LevelFourStyle key={index}>
+          <div>
             Set {index + 1}:
             {selectedExercise && exerciseList[selectedExercise].weighted && (
               <>
@@ -94,31 +101,39 @@ const ExerciseComponent = ({ sets, updateSets, exerciseNumber }) => {
             )}
             <IconButton
               onClick={() =>
-                updateSets(
-                  exerciseNumber,
-                  sets.filter((_, sIndex) => sIndex !== index)
-                )
+                updateSets({
+                  index: exerciseIndex, 
+                  sets: sets.filter((_, sIndex) => sIndex !== index),
+                })
               }
             >
               <DeleteIcon fontSize="inherit" />
             </IconButton>
           </div>
-          </LevelFourStyle>
-          </Paper>
-        ))}
-        <Button variant="outlined" color="primary" 
-          onClick={() => {
-            if (selectedExercise && exerciseList[selectedExercise].timed) {
-              updateSets(exerciseNumber, [...sets, { time: 30 }]);
-            } else {
-              updateSets(exerciseNumber, [...sets, { weight: 10, reps: 12 }]);
-            }
-          }}
-        >
-          Add Next Set
-        </Button>
-        </LevelThreeStyle>
-    </Paper>
+        </LevelFourStyle>
+      ))}
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={() => {
+          if (!selectedExercise) {
+            alert("Please select an exercise first.");
+            return;
+          }
+          const newSet =
+            selectedExercise && exerciseList[selectedExercise].timed
+              ? { time: 30 }
+              : { weight: 10, reps: 12 };
+          updateSets({
+            index: exerciseIndex,
+            exerciseName: selectedExercise, 
+            sets: [...sets, newSet],
+          });
+        }}
+      >
+        Add Next Set
+      </Button>
+    </LevelThreeStyle>
   );
 };
 

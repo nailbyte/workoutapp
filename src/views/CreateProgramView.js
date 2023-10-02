@@ -6,12 +6,22 @@ import {LevelOneStyle} from "../styles/LevelledStyle";
 const CreateProgramView = () => {
   const [programName, setProgramName] = useState("");
   const [numberOfDays, setNumberOfDays] = useState(1);
-  const [allDaysExercises, setAllDaysExercises] = useState([[]]);
+  const [allDaysExercises, setAllDaysExercises] = useState([
+    {
+      dayName: `Day 1`,
+      exercises: []
+    }
+  ]);
+  
 
   const handleAddDay = () => {
     setNumberOfDays((prev) => prev + 1);
-    setAllDaysExercises((prev) => [...prev, []]);
+    setAllDaysExercises((prev) => [
+      ...prev,
+      { dayName: `Day ${prev.length + 1}`, exercises: [] },
+    ]);
   };
+
 
   const handleRemoveDay = () => {
     if (numberOfDays > 1) {
@@ -39,11 +49,11 @@ const CreateProgramView = () => {
             key={dayIndex}
             dayNumber={dayIndex + 1}
             allDaysExercises={allDaysExercises}
-            setExercisesForDay={(exercises) => {
+            setExercisesForDay={(exercisesForDay) => {
               const updatedDays = [...allDaysExercises];
-              updatedDays[dayIndex] = exercises;
+              updatedDays[dayIndex] = { ...updatedDays[dayIndex], ...exercisesForDay };
               setAllDaysExercises(updatedDays);
-            }}
+          }}          
           />
         ))}
         <div className="day-actions">
