@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   TextField,
   Button,
@@ -12,8 +12,15 @@ import exerciseList from "../../utils/ExerciseList";
 import CustomTextField from "../common/CustomTextField";
 import { LevelThreeStyle, LevelFourStyle } from "../../styles/LevelledStyle";
 
+const exerciseOptions = Object.keys(exerciseList).map(key => ({
+  id: key,
+  label: exerciseList[key].name
+}));
+
+
 const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise }) => {
   const [selectedExercise, setSelectedExercise] = useState(initialExercise);
+  const [selectedExerciseId, setSelectedExerciseId] = useState();
 
   const isWeightValid = (weight) => {
     return /^(\d+|\d+\.5)$/.test(weight) && weight <= 999;
@@ -29,36 +36,46 @@ const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise })
     if (field === "reps" && !isRepValid(value)) return;
     newSets[index][field] = value;
     updateSets({
-      index: exerciseIndex,  // Send the index of the exercise
+      index: exerciseIndex,
+      exerciseName: selectedExercise,
+      exerciseId: selectedExerciseId,
       sets: newSets
     });    
   };
 
-  const exerciseOptions = Object.keys(exerciseList);
-
+  const handleExerciseChange = (event, newValue) => {
+    if (newValue) {
+        setSelectedExercise(newValue.label);
+        setSelectedExerciseId(newValue.id);
+        updateSets({
+          index: exerciseIndex,
+          exerciseId: newValue.id,
+          exerciseName: newValue.label,
+          sets: sets,
+        });
+    } else {
+        setSelectedExercise(null);
+        selectedExerciseId(null);
+    }
+};
   return (
     <LevelThreeStyle>
       <Typography>Ex {exerciseIndex + 1}:</Typography>
       <Autocomplete
+        disablePortal
+        id="exercise-autocomplete"
+        sx={{ width: 300 }}
+        renderInput={(params) => <TextField {...params} label="Exercise" />}
         options={exerciseOptions}
-        value={selectedExercise}
-        onChange={(event, newValue) => {
-          setSelectedExercise(newValue);
-          updateSets({
-            index: exerciseIndex,
-            exerciseName: newValue, 
-            sets: sets,
-          });
-        }}
-        renderInput={(params) => (
-          <TextField {...params} label="Exercise" variant="outlined" />
-        )}
+        getOptionLabel={(option) => option.label} // to display the exercise name
+        value={exerciseOptions.find(option => option.id === selectedExerciseId) || null}
+        onChange={handleExerciseChange}
       />
       {sets.map((set, index) => (
         <LevelFourStyle key={index}>
           <div>
             Set {index + 1}:
-            {selectedExercise && exerciseList[selectedExercise].weighted && (
+            {selectedExerciseId && exerciseList[selectedExerciseId].weighted && (
               <>
                 <CustomTextField
                   type="number"
@@ -71,7 +88,7 @@ const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise })
                 Kg
               </>
             )}
-            {selectedExercise && exerciseList[selectedExercise].reps && (
+            {selectedExerciseId && exerciseList[selectedExerciseId].reps && (
               <>
                 X{" "}
                 <CustomTextField
@@ -85,7 +102,7 @@ const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise })
                 reps
               </>
             )}
-            {selectedExercise && exerciseList[selectedExercise].timed && (
+            {selectedExerciseId && exerciseList[selectedExerciseId].timed && (
               <>
                 For{" "}
                 <CustomTextField
@@ -102,7 +119,7 @@ const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise })
             <IconButton
               onClick={() =>
                 updateSets({
-                  index: exerciseIndex, 
+                  index: exerciseIndex,
                   sets: sets.filter((_, sIndex) => sIndex !== index),
                 })
               }
@@ -121,12 +138,13 @@ const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise })
             return;
           }
           const newSet =
-            selectedExercise && exerciseList[selectedExercise].timed
+          selectedExerciseId && exerciseList[selectedExerciseId].timed
               ? { time: 30 }
               : { weight: 10, reps: 12 };
           updateSets({
             index: exerciseIndex,
-            exerciseName: selectedExercise, 
+            exerciseId: selectedExerciseId,
+            exerciseName: selectedExercise,
             sets: [...sets, newSet],
           });
         }}

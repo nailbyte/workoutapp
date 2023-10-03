@@ -1,18 +1,62 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Button, Card, CardContent, TextField } from "@mui/material";
 import DayComponent from "../components/CreateProgram/DayComponent";
-import {LevelOneStyle} from "../styles/LevelledStyle";
+import { LevelOneStyle } from "../styles/LevelledStyle";
+import { AuthContext } from "../components/AuthContext";
+import { useSnackbar } from "notistack";
+import { db } from "../firebase";
+import { addDoc, collection, doc, getDoc } from "firebase/firestore";
 
 const CreateProgramView = () => {
+  const { enqueueSnackbar } = useSnackbar();
+  const { user, handleLogout } = useContext(AuthContext);
+
   const [programName, setProgramName] = useState("");
   const [numberOfDays, setNumberOfDays] = useState(1);
   const [allDaysExercises, setAllDaysExercises] = useState([
     {
       dayName: `Day 1`,
-      exercises: []
-    }
+      exercises: [],
+    },
   ]);
-  
+
+  const handleSubmit = async () => {
+    
+
+    try {
+      if (!user) {
+        throw new Error("User is empty.");
+      }
+      //Fetch user data TBD: this needs to be done at one place for all logged in views
+      const userDocRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userDocRef);
+      if (!userSnap.exists()) {
+        throw new Error("User data not found.");
+      }
+      const programData = {
+        programName: programName,
+        allDaysExercises,
+        user: user.uid,
+        creationDate: new Date().toISOString(),
+        modificationDate: new Date().toISOString(),
+      };
+
+      console.log(programData);
+
+      // Push to Firestore
+      const docRef = await addDoc(
+        collection(db, "workoutTemplates"),
+        programData
+      );
+
+      enqueueSnackbar("Program saved successfully!", { variant: "success" });
+    } catch (error) {
+      console.error("Error writing workout program: ", error);
+      enqueueSnackbar("Error saving program! Try again later", {
+        variant: "error",
+      });
+    }
+  };
 
   const handleAddDay = () => {
     setNumberOfDays((prev) => prev + 1);
@@ -21,7 +65,6 @@ const CreateProgramView = () => {
       { dayName: `Day ${prev.length + 1}`, exercises: [] },
     ]);
   };
-
 
   const handleRemoveDay = () => {
     if (numberOfDays > 1) {
@@ -40,7 +83,7 @@ const CreateProgramView = () => {
         <TextField
           label="Program Name"
           value={programName}
-          onChange={(e) => setProgramName(e.target.value)}        
+          onChange={(e) => setProgramName(e.target.value)}
           fullWidth
         />
 
@@ -51,9 +94,12 @@ const CreateProgramView = () => {
             allDaysExercises={allDaysExercises}
             setExercisesForDay={(exercisesForDay) => {
               const updatedDays = [...allDaysExercises];
-              updatedDays[dayIndex] = { ...updatedDays[dayIndex], ...exercisesForDay };
+              updatedDays[dayIndex] = {
+                ...updatedDays[dayIndex],
+                ...exercisesForDay,
+              };
               setAllDaysExercises(updatedDays);
-          }}          
+            }}
           />
         ))}
         <div className="day-actions">
@@ -73,11 +119,10 @@ const CreateProgramView = () => {
           // style={{ marginTop: "20px" }}
           variant="contained"
           color="primary"
-          onClick={() => console.log(allDaysExercises)}
+          onClick={handleSubmit}
         >
           Submit
         </Button>
-
       </LevelOneStyle>
     </div>
   );

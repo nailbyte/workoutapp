@@ -9,18 +9,18 @@ const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
   const [selectedDayToCopy, setSelectedDayToCopy] = useState(1);
 
   const updateExerciseSets = (exerciseDetails) => {
-    const { index, sets, exerciseName } = exerciseDetails;
+    const { index, sets, exerciseName, exerciseId } = exerciseDetails;
     const newExercises = [...exercises];
   
     if (newExercises[index]) {
       newExercises[index].sets = sets;
-      newExercises[index].exerciseName = exerciseName; 
+      newExercises[index].exerciseName = exerciseName;
+      newExercises[index].exerciseId = exerciseId; 
     } else {
-      newExercises.push({ exerciseName: null, sets: sets });
+      newExercises.push({ exerciseName: null, exerciseId: null, sets: sets });
     }
   
     setExercises(newExercises);
-    console.log("New Exercises:", newExercises);
   };
   
 
@@ -34,7 +34,7 @@ const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
   const handleAddExercise = () => {
     const newExercises = [
       ...exercises,
-      { exerciseName: null, sets: [{ weight: 10, reps: 10 }] },
+      { exerciseName: null, exerciseId: null, sets: [{ weight: 10, reps: 10 }] },
     ];
     setExercises(newExercises);
   };
