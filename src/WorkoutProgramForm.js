@@ -1,82 +1,63 @@
-import React, { useState } from 'react';
-import { Button, Container, TextField, Typography, Grid, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from '@mui/material';
+import React from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@mui/material";
 
-const WorkoutProgramForm = () => {
-    const [programName, setProgramName] = useState('');
-    const [description, setDescription] = useState('');
-    const [frequency, setFrequency] = useState('');
-    const [hasProgression, setHasProgression] = useState('');
+import { Grid, Typography } from "@mui/material";
+import { Table, TableBody, TableCell, TableRow, } from "@mui/material";
+import CustomTextField from "./components/common/CustomTextField";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        // Handle form submission
-    };
+function WorkoutProgramForm() {
+  return (
+    <Accordion>
+    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+    <Typography>More</Typography>
+  </AccordionSummary>
+    <AccordionDetails>
+          <Table>
+            {/* ... other table components like TableHead */}
+            <TableBody>
+              <TableRow>
+                <TableCell>Set 1</TableCell>
+                <TableCell>
+                  <CustomTextField></CustomTextField>
+                </TableCell>
+                <TableCell>
+                  <CustomTextField></CustomTextField>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Set 1</TableCell>
+                <TableCell>
+                  <CustomTextField></CustomTextField>
+                </TableCell>
+                <TableCell>
+                  <CustomTextField></CustomTextField>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Set 1</TableCell>
+                <TableCell>
+                  <CustomTextField></CustomTextField>
+                </TableCell>
+                <TableCell>
+                  <CustomTextField></CustomTextField>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+          </AccordionDetails>
+   </Accordion>
+    
 
-    return (
-        <Container maxWidth="xs">
-            <Typography variant="h4" align="center" gutterBottom>
-                New Workout Program
-            </Typography>
-            
-            <form onSubmit={handleSubmit}>
-                <Grid container spacing={3}>
-                    <Grid item xs={12}>
-                        <TextField
-                            required
-                            fullWidth
-                            label="Program Name"
-                            value={programName}
-                            onChange={e => setProgramName(e.target.value)}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <TextField
-                            required
-                            fullWidth
-                            multiline
-                            rows={4}
-                            label="Description"
-                            value={description}
-                            onChange={e => setDescription(e.target.value)}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <TextField
-                            required
-                            fullWidth
-                            label="Frequency (e.g. 6 days a week)"
-                            value={frequency}
-                            onChange={e => setFrequency(e.target.value)}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <FormControl component="fieldset">
-                            <FormLabel component="legend">Has Progression?</FormLabel>
-                            <RadioGroup
-                                row
-                                value={hasProgression}
-                                onChange={e => setHasProgression(e.target.value)}
-                            >
-                                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                                <FormControlLabel value="no" control={<Radio />} label="No" />
-                            </RadioGroup>
-                        </FormControl>
-                    </Grid>
-
-                    {/* For exercises, days, and other detailed inputs, you can add further steps or form fields here. */}
-
-                    <Grid item xs={12}>
-                        <Button variant="contained" color="primary" type="submit" fullWidth>
-                            Submit
-                        </Button>
-                    </Grid>
-                </Grid>
-            </form>
-        </Container>
-    );
-};
-
+  );
+}
 export default WorkoutProgramForm;

@@ -1,0 +1,16 @@
+
+# Ignore node modules
+node_modules
+# Ignore all logs
+*.log
+# Ignore the local build directory
+build/
+# Ignore any local environment files
+.env.local
+*.env.development.local
+# Ignore any other files you might have in your local directory that aren't necessary for the app, like:
+README.md
+Dockerfile
+.dockerignore
+.git/
+.gitignore

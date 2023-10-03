@@ -1,74 +1,126 @@
-import React, { useEffect, useRef } from 'react';
-import { Paper, Typography, useTheme } from "@mui/material";
-import { ConversationalForm } from 'conversational-form';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  List,
+  ListItem,
+  Paper,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-const WorkoutProgramFormCF = () => {
-    const theme = useTheme();
+function WorkoutProgramFormCF() {
+  return (
+    <div>
+      <Paper elevation={5} style={{ marginBottom: "1rem" }}>
+      <Typography variant="h4">Program : Bro Split</Typography>
 
-    const formFields = [
-        {
-            'tag': 'input',
-            'type': 'text',
-            'name': 'firstname',
-            'cf-questions': 'What is your firstname?'
-        },
-        {
-            'tag': 'input',
-            'type': 'text',
-            'name': 'lastname',
-            'cf-questions': 'What is your lastname?'
-        }
-    ];
-
-    const elemRef = useRef(null);
-    const cf = useRef(null);
-
-    useEffect(() => {
-        cf.current = ConversationalForm.startTheConversation({
-            options: {
-                submitCallback: submitCallback,
-                preventAutoFocus: true,
-                // loadExternalStyleSheet: false
-            },
-            tags: formFields
-        });
-        elemRef.current.appendChild(cf.current.el);
-        // Cleanup when the component is unmounted
-        return () => {
-            if (cf.current && cf.current.el && cf.current.el.parentNode) {
-                cf.current.el.parentNode.removeChild(cf.current.el);
-            }
-        };
-    }, []); // Empty dependency array ensures the effect runs only once, similar to componentDidMount
-
-    const submitCallback = () => {
-        const formDataSerialized = cf.current.getFormData(true);
-        console.log("Formdata, obj:", formDataSerialized);
-        cf.current.addRobotChatResponse("You are done. Check the dev console for form data output.");
-    };
-
-    return (
-        <div style={{ maxWidth: '460px', margin: '20px auto', padding: theme.spacing(2), backgroundColor: 'lightgray' }}>
-            <Typography variant="h5" align="center" gutterBottom>
-                Conversational Form
-            </Typography>
-            <Paper elevation={3} style={{ padding: theme.spacing(2) }}>
-                <div ref={elemRef} style={{ width: '100%', height: '400px' }} />
+      {/* Chest Day Accordion */}
+      <Paper elevation={3} style={{ marginBottom: "1rem" }}>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography>Chest Day</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            {/* Bench Press Accordion */}
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>Bench Press</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <List>
+                <Paper elevation={2} style={{ marginBottom: '8px' }}>
+                  <ListItem>Set 1 : 50Kg X 20 reps</ListItem>
+                  </Paper>
+                  <Paper elevation={2} style={{ marginBottom: '8px' }}>
+                  <ListItem>Set 2 : 50Kg X 20 reps</ListItem>
+                  </Paper>
+                  <Paper elevation={2} style={{ marginBottom: '8px' }}>
+                  <ListItem>Set 3 : 50Kg X 20 reps</ListItem>
+                  </Paper>
+                </List>
+              </AccordionDetails>
+            </Accordion>
+            {/* Bench Press Accordion */}
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>Dumbell Flyes</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+              <Paper elevation={2} style={{ padding: '1rem' }}>
+                <List>
+                  <ListItem>Set 1 : 10Kg X 20 reps</ListItem>
+                  <ListItem>Set 2 : 10Kg X 20 reps</ListItem>
+                  <ListItem>Set 3 : 10Kg X 20 reps</ListItem>
+                </List>
+                </Paper>
+              </AccordionDetails>
+            </Accordion>
+            {/* Add more exercises similarly */}
+          </AccordionDetails>
+        </Accordion>
+      </Paper>
+      {/* Shoulder Day Accordion */}
+      <Paper elevation={3} style={{ marginBottom: '1rem', padding: '1rem' }}>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography>Shoulder Day</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            {/* Front Raise Press Accordion */}
+            <Paper elevation={6} style={{ marginBottom: '0.5rem', padding: '0.75rem' }}>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>Front Raise</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+              <Paper elevation={2} style={{ padding: '0.5rem' }}>
+                <List>
+                <Paper elevation={1} style={{ marginBottom: '0.25rem', padding: '0.5rem' }}>
+                  <ListItem>Set 1 : 5Kg X 20 reps</ListItem>
+                  </Paper>
+                  <Paper elevation={1} style={{ marginBottom: '0.25rem', padding: '0.5rem' }}>
+                  <ListItem>Set 2 : 5Kg X 20 reps</ListItem>
+                  </Paper>
+                  <Paper elevation={1} style={{ marginBottom: '0.25rem', padding: '0.5rem' }}>
+                  <ListItem>Set 3 : 5Kg X 20 reps</ListItem>
+                </Paper>
+                </List>
+                </Paper>
+              </AccordionDetails>
+            </Accordion>
             </Paper>
-        </div>
-    );
-    
-    // return (
-    //     <div style={{ width: '100%', height: '400px' }}>
-    //         <div ref={elemRef} style={{ width: '100%', height: '100%' }} />
-    //     </div>
-    // );
-    
-    // return (
-    //     <div>
-    //         <div ref={elemRef} />
-    //     </div>
-    // );
+            {/* Lateral Raise Accordion */}
+            <Paper elevation={6} style={{ marginBottom: '0.5rem', padding: '0.75rem' }}>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>Lateral Raise</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+              <Paper elevation={2} style={{ padding: '0.5rem' }}>
+                <List>
+                <Paper elevation={1} style={{ marginBottom: '0.25rem', padding: '0.5rem' }}>
+                  <ListItem>Set 1 : 7Kg X 20 reps</ListItem>
+                  </Paper>
+                  <Paper elevation={1} style={{ marginBottom: '0.25rem', padding: '0.5rem' }}>
+                  <ListItem>Set 2 : 8Kg X 20 reps</ListItem>
+                  </Paper>
+                  <Paper elevation={1} style={{ marginBottom: '0.25rem', padding: '0.5rem' }}>
+                  <ListItem>Set 3 : 10Kg X 20 reps</ListItem>
+                </Paper>
+                </List>
+                </Paper>
+              </AccordionDetails>
+            </Accordion>
+            </Paper>
+            {/* Add more exercises similarly */}
+          </AccordionDetails>
+        </Accordion>
+      </Paper>
+      {/* You can add more day accordions similarly */}
+      </Paper>
+    </div>
+  );
 }
 
 export default WorkoutProgramFormCF;
