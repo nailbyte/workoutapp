@@ -25,7 +25,7 @@ WORKDIR /app
 #RUN npm install --only=production - not needed for CRA
 
 # Install `serve` to serve the production build
-RUN npm install -g serve
+RUN npm install -g serve@12.0.0
 
 # Copy build folder from the builder stage
 COPY --from=builder /app/build ./build
@@ -34,5 +34,6 @@ COPY --from=builder /app/build ./build
 EXPOSE 8080
 
 # Run the app using `serve`
-CMD ["sh", "-c", "serve", "-s", "./build", "-l", "tcp://0.0.0.0:8080"]
+CMD ["serve", "-s", "build", "-l", "tcp://0.0.0.0:8080"]
+#CMD ["sh", "-c", "serve", "-s", "./build", "-l", "tcp://0.0.0.0:8080"]
 #CMD ["serve", "./build"]
