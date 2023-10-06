@@ -14,6 +14,7 @@ import CreateProgramView from "./views/CreateProgramView";
 import ProgramView from "./views/ProgramView";
 import PlaygroundView from "./views/PlaygroundView";
 import Copyright from "./components/common/Copyright";
+import ResponsiveAppBar from "./components/layouts/ResponsiveAppBar";
 function Main() {
     const { user } = useContext(AuthContext);
     console.log('Main rendered with user:', user);
@@ -53,6 +54,7 @@ function App() {
         <SnackbarProvider maxSnack={3}>
             <ThemeProvider theme={theme}>
                 <AuthProvider>
+                <ResponsiveAppBar />
                     <Main />
                 </AuthProvider>
             </ThemeProvider>
