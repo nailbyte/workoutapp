@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useContext } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -12,6 +13,10 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
+
+import { AuthContext } from "../AuthContext";
+
+//TBD use these icons
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
@@ -61,8 +66,8 @@ function DesktopPages() {
           sx={{
             color: "white",
             justifyContent: "center",
-            marginLeft: "16px",  // Add consistent left margin
-            marginRight: "16px",  // Add consistent right margin
+            marginLeft: "16px", // Add consistent left margin
+            marginRight: "16px", // Add consistent right margin
             "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.08)" },
             transition: "0.3s",
           }}
@@ -77,6 +82,8 @@ function DesktopPages() {
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  const { handleLogout } = useContext(AuthContext);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -112,40 +119,44 @@ function ResponsiveAppBar() {
                 <MenuIcon color="white" />
               </IconButton>
               <Menu
-                id="menu-appbar"
+                id="nav-menu-appbar"
                 anchorEl={anchorElNav}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
                 open={Boolean(anchorElNav)}
                 onClose={handleCloseNavMenu}
+                // ... other properties ...
               >
                 {pages.map((page) => (
-                  <MenuItem key={page.name} onClick={() => (window.location.href = page.path)}>
+                  <MenuItem
+                    key={page.name}
+                    onClick={() => (window.location.href = page.path)}
+                  >
                     <Typography>{page.name}</Typography>
                   </MenuItem>
                 ))}
               </Menu>
             </Box>
-  
+
             {/* Logo */}
             <FitnessCenterIcon
               sx={{
                 ...iconStyles,
                 position: { xs: "absolute", md: "static" },
                 left: { xs: "50%", md: "initial" },
-                transform: { xs: "translateX(-50%) rotate(135deg)", md: "rotate(135deg)" },
+                transform: {
+                  xs: "translateX(-50%) rotate(135deg)",
+                  md: "rotate(135deg)",
+                },
               }}
             />
-  
+
             {/* Navigation links for medium and larger screens */}
-            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "center" }}>
+            <Box
+              sx={{
+                flexGrow: 1,
+                display: { xs: "none", md: "flex" },
+                justifyContent: "center",
+              }}
+            >
               {pages.map((page) => (
                 <Button
                   key={page.name}
@@ -156,22 +167,38 @@ function ResponsiveAppBar() {
                 </Button>
               ))}
             </Box>
-  
-            {/* User Avatar Menu */}
-            <Box sx={{ display: { xs: "none", md: "block" } }}>
+
+            {/* User Avatar Menu (Make it visible on all screens) */}
+            <Box>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
                 </IconButton>
               </Tooltip>
+
               <Menu
                 sx={{ mt: "45px" }}
-                id="menu-appbar"
+                id="user-menu-appbar"
                 anchorEl={anchorElUser}
-                // ... other properties ...
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
               >
                 {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                  <MenuItem
+                    key={setting}
+                    onClick={
+                      setting === "Logout" ? handleLogout : handleCloseUserMenu
+                    }
+                  >
                     <Typography textAlign="center">{setting}</Typography>
                   </MenuItem>
                 ))}
@@ -182,7 +209,6 @@ function ResponsiveAppBar() {
       </Container>
     </AppBar>
   );
-  
 }
 
 export default ResponsiveAppBar;
