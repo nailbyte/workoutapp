@@ -1,6 +1,6 @@
 // Import required classes from Firebase
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, browserLocalPersistence, setPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -19,6 +19,9 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Auth
 const auth = getAuth(app);
+
+// Set Persistence: not sure if it's needed TBD
+setPersistence(auth, browserLocalPersistence);
 
 const db = getFirestore(app);
 

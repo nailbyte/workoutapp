@@ -11,22 +11,21 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import LogoIcon from "../../assets/images/Logo.svg";
-import { Link } from "react-router-dom";
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
+import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
-const pages = ["Program", "Start Gym", "History"];
-const pagePaths = {
-  "Start Gym": "/workoutview",
-  "Program": "/createprogramview",
-  "History": "/somethingelse",
-};
-
+const pages = ["Products", "Pricing", "Blog"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
-const settingPaths = {
-  Profile: "/profile",
-  Account: "/account",
-  Dashboard: "/dashboard",
-  Logout: "/logout",
+const iconStyles = {
+  //display: { xs: 'none', md: 'flex' },
+  display: "flex",
+  mr: 1,
+  transform: "rotate(135deg)",
+  webkitTextStrokeWidth: "0px",
+  textShadow: "rgb(255, 0, 0) 10px 0px 10px",
+  fontSize: "100px",
+  color: "rgb(255, 255, 255)",
 };
 
 function ResponsiveAppBar() {
@@ -52,87 +51,55 @@ function ResponsiveAppBar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          {/* Hamburger menu for small screens */}
-          <Box sx={{ flexGrow: 0, display: { xs: "flex", md: "none" } }}>
+        <Box 
+            display="flex" 
+            width="100%" 
+            alignItems="center"
+            justifyContent={{ xs: 'center', md: 'flex-start' }}
+          >
+          <FitnessCenterIcon sx={{ ...iconStyles, position: { xs: 'absolute', md: 'static' } }} />
+
+          <Typography
+            variant="h6"
+            noWrap
+            component="a"
+            href="#app-bar-with-responsive-menu"
+            sx={{
+              mr: 2,
+              display: "flex",
+              fontFamily: "monospace",
+              fontWeight: 700,
+              letterSpacing: ".3rem",
+              color: "inherit",
+              textDecoration: "none",
+            }}
+          >
+            {/* LOGO */}
+          </Typography>
+
+          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
-              size="large"
-              aria-label="open navigation menu"
-              onClick={handleOpenNavMenu}
-              color="inherit"
+            // [Rest of your IconButton properties...]
             >
               <MenuIcon />
             </IconButton>
-          </Box>
-
-          {/* Container for Logo on medium screens and above */}
-          <Box
-            sx={{
-              display: { xs: "none", md: "flex" },
-              flexDirection: "column", // set flex direction to column
-              alignItems: "center", // center items horizontally
-              mr: 2, // add some margin to the right
-            }}
-          >
-            <Typography
-              variant="h6"
-              noWrap
-              component="a"
-              href="#app-bar-with-responsive-menu"
-              sx={{
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}
+            <Menu
+            // [Rest of your Menu properties for anchorElNav...]
             >
-              PHAT
-            </Typography>
-            <img
-              src={LogoIcon}
-              alt="Logo"
-              style={{ height: "40px", width: "auto", marginBottom: "8px" }} // margin added at the bottom
-            />
+              {pages.map((page) => (
+                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
           </Box>
 
-          {/* Logo for small screens */}
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <Typography
-              variant="h5"
-              noWrap
-              component="a"
-              href="#app-bar-with-responsive-menu"
-              sx={{
-                flexGrow: 1,
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}
-            >
-              PHAT
-            </Typography>
-          </Box>
-
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: { xs: "none", md: "flex" },
-              justifyContent: "space-between", // evenly distributes space between the items
-            }}
-          >
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
-                component={Link}
-                to={pagePaths[page]}
-                sx={{
-                  flex: 1, // allows each button to grow equally
-                  justifyContent: "center", // centers text within the button
-                  color: "white",
-                }}
+                sx={{ my: 2, color: "white", display: "block" }}
               >
                 {page}
               </Button>
@@ -146,33 +113,16 @@ function ResponsiveAppBar() {
               </IconButton>
             </Tooltip>
             <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
+            // [Rest of your Menu properties for anchorElUser...]
             >
               {settings.map((setting) => (
-                <MenuItem
-                  key={setting}
-                  onClick={handleCloseUserMenu}
-                  component={Link}
-                  to={settingPaths[setting]}
-                >
+                <MenuItem key={setting} onClick={handleCloseUserMenu}>
                   <Typography textAlign="center">{setting}</Typography>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
+        </Box>
         </Toolbar>
       </Container>
     </AppBar>

@@ -4,7 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { auth } from '../firebase';
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut,  createUserWithEmailAndPassword } from "firebase/auth";
 
-const AuthContext = React.createContext();
+const AuthContext = React.createContext({
+  user: null,  // or some default value
+  // other properties...
+});
 
 function AuthProvider({ children }) {
   const [user, setUser] = useState(null);

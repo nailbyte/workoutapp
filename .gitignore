@@ -25,3 +25,6 @@ yarn-error.log*
 firebase.json
 .gitignore
 .gitignore
+src/tmp.js
+src/views/WorkoutView copy.js
+src/components/layouts/ResponsiveAppBar copy.js
