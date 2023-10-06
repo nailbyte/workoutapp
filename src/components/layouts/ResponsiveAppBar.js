@@ -15,7 +15,12 @@ import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
-const pages = ["Products", "Pricing", "Blog"];
+const pages = [
+  { name: "Workout", path: "/workoutview" },
+  { name: "Program", path: "/programview" },
+  { name: "New Program", path: "/createprogramview" },
+];
+
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 const iconStyles = {
   //display: { xs: 'none', md: 'flex' },
@@ -24,9 +29,50 @@ const iconStyles = {
   transform: "rotate(135deg)",
   webkitTextStrokeWidth: "0px",
   textShadow: "rgb(255, 0, 0) 10px 0px 10px",
-  fontSize: "100px",
-  color: "rgb(255, 255, 255)",
+  fontSize: "60px",
+  color: "rgb(255, 255, 255",
 };
+
+function MenuItems({ items, onClose }) {
+  return (
+    <>
+      {items.map((item) => (
+        <MenuItem key={item} onClick={onClose}>
+          <Typography textAlign="center">{item}</Typography>
+        </MenuItem>
+      ))}
+    </>
+  );
+}
+
+function DesktopPages() {
+  return (
+    <Box
+      sx={{
+        flexGrow: 1,
+        display: { xs: "none", md: "flex" },
+        justifyContent: "space-between",
+      }}
+    >
+      {pages.map((page) => (
+        <Button
+          key={page.name}
+          onClick={() => (window.location.href = page.path)}
+          sx={{
+            color: "white",
+            justifyContent: "center",
+            marginLeft: "16px",  // Add consistent left margin
+            marginRight: "16px",  // Add consistent right margin
+            "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.08)" },
+            transition: "0.3s",
+          }}
+        >
+          {page.name}
+        </Button>
+      ))}
+    </Box>
+  );
+}
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -51,82 +97,92 @@ function ResponsiveAppBar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-        <Box 
-            display="flex" 
-            width="100%" 
-            alignItems="center"
-            justifyContent={{ xs: 'center', md: 'flex-start' }}
-          >
-          <FitnessCenterIcon sx={{ ...iconStyles, position: { xs: 'absolute', md: 'static' } }} />
-
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
+          <Box
             sx={{
-              mr: 2,
               display: "flex",
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: 2, // Padding for some spacing on the ends
             }}
           >
-            {/* LOGO */}
-          </Typography>
-
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-            // [Rest of your IconButton properties...]
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-            // [Rest of your Menu properties for anchorElNav...]
-            >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))}
-          </Box>
-
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+            {/* Hamburger Menu for small screens */}
+            <Box sx={{ display: { xs: "block", md: "none" } }}>
+              <IconButton onClick={handleOpenNavMenu}>
+                <MenuIcon color="white" />
               </IconButton>
-            </Tooltip>
-            <Menu
-            // [Rest of your Menu properties for anchorElUser...]
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorElNav}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "left",
+                }}
+                open={Boolean(anchorElNav)}
+                onClose={handleCloseNavMenu}
+              >
+                {pages.map((page) => (
+                  <MenuItem key={page.name} onClick={() => (window.location.href = page.path)}>
+                    <Typography>{page.name}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+  
+            {/* Logo */}
+            <FitnessCenterIcon
+              sx={{
+                ...iconStyles,
+                position: { xs: "absolute", md: "static" },
+                left: { xs: "50%", md: "initial" },
+                transform: { xs: "translateX(-50%) rotate(135deg)", md: "rotate(135deg)" },
+              }}
+            />
+  
+            {/* Navigation links for medium and larger screens */}
+            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "center" }}>
+              {pages.map((page) => (
+                <Button
+                  key={page.name}
+                  onClick={() => (window.location.href = page.path)}
+                  sx={{ mx: 2, color: "white" }}
+                >
+                  {page.name}
+                </Button>
               ))}
-            </Menu>
+            </Box>
+  
+            {/* User Avatar Menu */}
+            <Box sx={{ display: { xs: "none", md: "block" } }}>
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                // ... other properties ...
+              >
+                {settings.map((setting) => (
+                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                    <Typography textAlign="center">{setting}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
           </Box>
-        </Box>
         </Toolbar>
       </Container>
     </AppBar>
   );
+  
 }
 
 export default ResponsiveAppBar;
