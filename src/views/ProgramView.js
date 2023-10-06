@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
+
 import {
   Button,
   Select,
@@ -48,7 +49,10 @@ import {
   CircularWithValueLabel,
 } from "../components/common/LoadingComp";
 
+import theme from './../theme';
+
 const ProgramView = () => {
+  
   const { enqueueSnackbar } = useSnackbar();
   const { user, handleLogout } = useContext(AuthContext);
 
@@ -147,8 +151,16 @@ const ProgramView = () => {
   }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <Typography variant="h4">Program Details</Typography>
+    <div
+      style={{ maxWidth: "460px", margin: "0 auto", padding: theme.spacing(2) }}
+    >
+      <Typography
+        variant="h2"
+        gutterBottom
+        style={{ fontWeight: 600, textAlign: "center" }}
+      >
+        Program Details
+      </Typography>
 
       <FormControl fullWidth variant="outlined" style={{ margin: "20px 0" }}>
         <InputLabel>Choose Program</InputLabel>
@@ -169,57 +181,55 @@ const ProgramView = () => {
       </FormControl>
 
       {currentProgram && (
-        <div>
-          {/* <Typography variant="h6">{currentProgram.programName}</Typography> */}
+        <DayLevelStyle>
           {currentProgram.allDaysExercises &&
           currentProgram.allDaysExercises.length > 0 ? (
             currentProgram.allDaysExercises.map((dayObj, dayIndex) => (
-              <div
-                key={dayObj.dayName + "-" + dayIndex}
-                style={{ margin: "20px 0" }}
-              >
+              <React.Fragment key={dayObj.dayName + "-" + dayIndex}>
                 <Typography variant="h6">{dayObj.dayName}</Typography>
-                {dayObj.exercises.map((exerciseObj, exerciseIndex) => (
-                  <div key={exerciseObj.exerciseId + "-" + exerciseIndex}>
-                    <Typography variant="body1">
-                      {exerciseObj.exerciseName}
-                    </Typography>
-                    {exerciseObj.sets.map((set, index) => {
-                      const exerciseDetail =
-                        exerciseList[exerciseObj.exerciseId];
-                      let setDetail = "";
+                <ExerLevelStyle>
+                  {dayObj.exercises.map((exerciseObj, exerciseIndex) => (
+                    <div key={exerciseObj.exerciseId + "-" + exerciseIndex}>
+                      <Typography variant="body1">
+                        {exerciseObj.exerciseName}
+                      </Typography>
+                      {exerciseObj.sets.map((set, index) => {
+                        const exerciseDetail =
+                          exerciseList[exerciseObj.exerciseId];
+                        let setDetail = "";
 
-                      // Check if exercise is weighted
-                      if (exerciseDetail.weighted) {
-                        setDetail += `${set.weight} kg `;
-                      }
+                        // Check if exercise is weighted
+                        if (exerciseDetail.weighted) {
+                          setDetail += `${set.weight} kg `;
+                        }
 
-                      // Check if exercise has reps
-                      if (exerciseDetail.reps) {
-                        setDetail += `for ${set.reps} reps `;
-                      }
+                        // Check if exercise has reps
+                        if (exerciseDetail.reps) {
+                          setDetail += `for ${set.reps} reps `;
+                        }
 
-                      // Check if exercise is timed
-                      if (exerciseDetail.timed) {
-                        setDetail += `for ${formatTime(set.time)}`;
-                      }
+                        // Check if exercise is timed
+                        if (exerciseDetail.timed) {
+                          setDetail += `for ${formatTime(set.time)}`;
+                        }
 
-                      return (
-                        <Typography variant="body2" key={index}>
-                          Set {index + 1}: {setDetail}
-                        </Typography>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
+                        return (
+                          <Typography variant="body2" key={index}>
+                            Set {index + 1}: {setDetail}
+                          </Typography>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </ExerLevelStyle>
+              </React.Fragment>
             ))
           ) : (
             <Typography variant="body1">
               No exercises for this program.
             </Typography>
           )}
-        </div>
+        </DayLevelStyle>
       )}
     </div>
   );
