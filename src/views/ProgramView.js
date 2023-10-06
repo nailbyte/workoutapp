@@ -1,12 +1,28 @@
 import React, { useState, useContext, useEffect } from "react";
-import { 
-  Button, Select, MenuItem, Typography, FormControl, 
-  InputLabel, Card, CardContent, CardHeader, List, ListItem, 
-  Box, Snackbar, Alert
+import {
+  Button,
+  Select,
+  MenuItem,
+  Typography,
+  FormControl,
+  InputLabel,
+  Card,
+  CardContent,
+  CardHeader,
+  List,
+  ListItem,
+  Box,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DayComponent from "../components/CreateProgram/DayComponent";
-import { ProgLevelStyle, DayLevelStyle, ExerLevelStyle ,SetLevelStyle } from "../styles/LevelledStyle";
+import {
+  ProgLevelStyle,
+  DayLevelStyle,
+  ExerLevelStyle,
+  SetLevelStyle,
+} from "../styles/LevelledStyle";
 import { AuthContext } from "../components/AuthContext";
 import { useSnackbar } from "notistack";
 import { db } from "../firebase";
@@ -26,7 +42,11 @@ import exerciseList from "../utils/ExerciseList";
 import { useNavigate } from "react-router-dom";
 import formatTime from "../utils/FormatTime";
 
-import {LinearIndeterminate, CircularIndeterminate, CircularWithValueLabel} from "../components/common/LoadingComp";
+import {
+  LinearIndeterminate,
+  CircularIndeterminate,
+  CircularWithValueLabel,
+} from "../components/common/LoadingComp";
 
 const ProgramView = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -36,10 +56,9 @@ const ProgramView = () => {
   const [userProgramsList, setUserProgramsList] = useState([]);
   const [selectedProgramIndex, setSelectedProgramIndex] = useState(-1);
 
-  const [loading, setLoading] = useState(true);  // Loading state
-    const [alertOpen, setAlertOpen] = useState(false); // Snackbar state
-    const [alertMessage, setAlertMessage] = useState("");  // Alert Message
-
+  const [loading, setLoading] = useState(true); // Loading state
+  const [alertOpen, setAlertOpen] = useState(false); // Snackbar state
+  const [alertMessage, setAlertMessage] = useState(""); // Alert Message
 
   const navigate = useNavigate();
 
@@ -72,16 +91,20 @@ const ProgramView = () => {
           )
         );
 
-        const userProgramsList = allUserProgramsSnapshot.docs.map((doc) => doc.data() );
+        const userProgramsList = allUserProgramsSnapshot.docs.map((doc) =>
+          doc.data()
+        );
         setUserProgramsList(userProgramsList);
-        
-        // Find the index of the currentProgram in userProgramsList
-    const currentProgramIndex = userProgramsList.findIndex(
-      program => program.programName === programSnap.data().programName
-    );
 
-    // Set the selectedProgramIndex to the found index, or -1 if not found
-    setSelectedProgramIndex(currentProgramIndex !== -1 ? currentProgramIndex : -1);
+        // Find the index of the currentProgram in userProgramsList
+        const currentProgramIndex = userProgramsList.findIndex(
+          (program) => program.programName === programSnap.data().programName
+        );
+
+        // Set the selectedProgramIndex to the found index, or -1 if not found
+        setSelectedProgramIndex(
+          currentProgramIndex !== -1 ? currentProgramIndex : -1
+        );
 
         console.log("User programs list:", userProgramsList);
       }
@@ -106,96 +129,100 @@ const ProgramView = () => {
   };
 
   const closeAlert = (event, reason) => {
-    if (reason === 'clickaway') {
-        return;
+    if (reason === "clickaway") {
+      return;
     }
 
     setAlertOpen(false);
-};
+  };
 
-if (loading) {
-  return <p><LinearIndeterminate/></p>  
-  //return <p><CircularIndeterminate/></p>
-  //return <p><CircularWithValueLabel/></p>
-}
+  if (loading) {
+    return (
+      <p>
+        <LinearIndeterminate />
+      </p>
+    );
+    //return <p><CircularIndeterminate/></p>
+    //return <p><CircularWithValueLabel/></p>
+  }
 
-return (
-  <div style={{ padding: "20px" }}>
-    <Typography variant="h4">Program Details</Typography>
+  return (
+    <div style={{ padding: "20px" }}>
+      <Typography variant="h4">Program Details</Typography>
 
-    <FormControl fullWidth variant="outlined" style={{ margin: "20px 0" }}>
-      <InputLabel>Choose Program</InputLabel>
-      <Select
-        value={selectedProgramIndex}
-        onChange={handleProgramChange}
-        label="Choose Program"
-      >
-        <MenuItem value={-1} onClick={handleCreateNew}>
-          Create New
-        </MenuItem>
-        {userProgramsList.map((program, index) => (
-          <MenuItem key={program.programName + "-" + index} value={index}>
-            {program.programName}
+      <FormControl fullWidth variant="outlined" style={{ margin: "20px 0" }}>
+        <InputLabel>Choose Program</InputLabel>
+        <Select
+          value={selectedProgramIndex}
+          onChange={handleProgramChange}
+          label="Choose Program"
+        >
+          <MenuItem value={-1} onClick={handleCreateNew}>
+            Create New
           </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+          {userProgramsList.map((program, index) => (
+            <MenuItem key={program.programName + "-" + index} value={index}>
+              {program.programName}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
-    {currentProgram && (
-      <div>
-        {/* <Typography variant="h6">{currentProgram.programName}</Typography> */}
-        {currentProgram.allDaysExercises &&
-        currentProgram.allDaysExercises.length > 0 ? (
-          currentProgram.allDaysExercises.map((dayObj, dayIndex) => (
-            <div
-              key={dayObj.dayName + "-" + dayIndex}
-              style={{ margin: "20px 0" }}
-            >
-              <Typography variant="h6">{dayObj.dayName}</Typography>
-              {dayObj.exercises.map((exerciseObj, exerciseIndex) => (
-                <div key={exerciseObj.exerciseId + "-" + exerciseIndex}>
-                  <Typography variant="body1">
-                    {exerciseObj.exerciseName}
-                  </Typography>
-                  {exerciseObj.sets.map((set, index) => {
-                    const exerciseDetail =
-                      exerciseList[exerciseObj.exerciseId];
-                    let setDetail = "";
+      {currentProgram && (
+        <div>
+          {/* <Typography variant="h6">{currentProgram.programName}</Typography> */}
+          {currentProgram.allDaysExercises &&
+          currentProgram.allDaysExercises.length > 0 ? (
+            currentProgram.allDaysExercises.map((dayObj, dayIndex) => (
+              <div
+                key={dayObj.dayName + "-" + dayIndex}
+                style={{ margin: "20px 0" }}
+              >
+                <Typography variant="h6">{dayObj.dayName}</Typography>
+                {dayObj.exercises.map((exerciseObj, exerciseIndex) => (
+                  <div key={exerciseObj.exerciseId + "-" + exerciseIndex}>
+                    <Typography variant="body1">
+                      {exerciseObj.exerciseName}
+                    </Typography>
+                    {exerciseObj.sets.map((set, index) => {
+                      const exerciseDetail =
+                        exerciseList[exerciseObj.exerciseId];
+                      let setDetail = "";
 
-                    // Check if exercise is weighted
-                    if (exerciseDetail.weighted) {
-                      setDetail += `${set.weight} kg `;
-                    }
+                      // Check if exercise is weighted
+                      if (exerciseDetail.weighted) {
+                        setDetail += `${set.weight} kg `;
+                      }
 
-                    // Check if exercise has reps
-                    if (exerciseDetail.reps) {
-                      setDetail += `for ${set.reps} reps `;
-                    }
+                      // Check if exercise has reps
+                      if (exerciseDetail.reps) {
+                        setDetail += `for ${set.reps} reps `;
+                      }
 
-                    // Check if exercise is timed
-                    if (exerciseDetail.timed) {
-                      setDetail += `for ${formatTime(set.time)}`;
-                    }
+                      // Check if exercise is timed
+                      if (exerciseDetail.timed) {
+                        setDetail += `for ${formatTime(set.time)}`;
+                      }
 
-                    return (
-                      <Typography variant="body2" key={index}>
-                        Set {index + 1}: {setDetail}
-                      </Typography>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          ))
-        ) : (
-          <Typography variant="body1">
-            No exercises for this program.
-          </Typography>
-        )}
-      </div>
-    )}
-  </div>
-);
+                      return (
+                        <Typography variant="body2" key={index}>
+                          Set {index + 1}: {setDetail}
+                        </Typography>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            ))
+          ) : (
+            <Typography variant="body1">
+              No exercises for this program.
+            </Typography>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default ProgramView;
