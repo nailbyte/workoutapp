@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { db } from "../firebase";
-import { Paper, Button, Grid, Typography, TextField } from "@mui/material";
+import { Paper, Button, Grid, Typography } from "@mui/material";
 import {
   doc,
   getDoc,
@@ -13,8 +13,17 @@ import {
 } from "firebase/firestore";
 import { AuthContext } from "../components/AuthContext";
 import { addDoc } from "firebase/firestore";
-import { useTheme } from '@mui/material/styles';
-import { useSnackbar } from 'notistack';
+import { useTheme } from "@mui/material/styles";
+import { useSnackbar } from "notistack";
+
+import {
+  LinearIndeterminate,
+  CircularIndeterminate,
+  CircularWithValueLabel,
+} from "../components/common/LoadingComp";
+import exerciseList from "../utils/ExerciseList";
+import { ProgLevelStyle, DayLevelStyle, ExerLevelStyle, SetLevelStyle } from "../styles/LevelledStyle";
+import CustomTextField from "../components/common/CustomTextField";
 
 function WorkoutView() {
   console.log("WorkoutView rendered"); //TBD remove this
@@ -24,12 +33,24 @@ function WorkoutView() {
   const [todayWorkoutData, setTodayWorkoutData] = useState(null);
   const { user, handleLogout } = useContext(AuthContext);
 
-  const [workoutInputs, setWorkoutInputs] = useState({});
   const [loading, setLoading] = useState(true);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const theme = useTheme();
+
+  const isWeightValid = (weight) => {
+    return /^(\d+|\d+\.5)$/.test(weight) && weight <= 999;
+  };
+
+  const isRepValid = (rep) => {
+    return /^\d+$/.test(rep) && rep <= 999;
+  };
+  const updateTime = (index, minutes, seconds) => {
+    const totalSeconds = (minutes * 60) + seconds;
+    handleInputChange(index, "time", totalSeconds);
+  };
+
 
   const fetchAndSetUserData = useCallback(async () => {
     try {
@@ -45,120 +66,186 @@ function WorkoutView() {
       setUserData(userData);
       return userData;
     } catch (err) {
-      enqueueSnackbar('Failed to fetch user data. Please try again later.', { variant: 'error' });
+      enqueueSnackbar("Failed to fetch user data. Please try again later.", {
+        variant: "error",
+      });
       console.error("Error getting User details:", err);
     }
   }, [enqueueSnackbar, user, setUserData]);
-  
 
-  const fetchAndSetLastWorkoutLog = useCallback(async (fetchedUserData) => {
-    const q = query(
-      collection(db, "workoutLogs"),
-      where("user", "==", fetchedUserData.uid),
-      where("WorkoutTemplate", "==", fetchedUserData.currentWorkoutTemplate),
-      orderBy("date", "desc"),
-      limit(1)
-    );
-    try {
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty) {
-        const lastWorkoutLog = querySnapshot.docs[0].data();
-        setLastWorkoutLog(lastWorkoutLog);
-        return lastWorkoutLog;
+  const fetchAndSetLastWorkoutLog = useCallback(
+    async (fetchedUserData) => {
+      const q = query(
+        collection(db, "workoutLogs"),
+        where("user", "==", fetchedUserData.uid),
+        where("WorkoutTemplate", "==", fetchedUserData.currentWorkoutTemplate),
+        orderBy("date", "desc"),
+        limit(1)
+      );
+      try {
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const lastWorkoutLog = querySnapshot.docs[0].data();
+          console.log(
+            "fetchAndSetLastWorkoutLog:lastWorkoutLog:",
+            lastWorkoutLog
+          );
+          setLastWorkoutLog(lastWorkoutLog);
+          return lastWorkoutLog;
+        }
+        return null;
+      } catch (err) {
+        enqueueSnackbar(
+          "Failed to fetch workout logs. Please try again later.",
+          { variant: "error" }
+        );
+        console.error("Trouble getting workout logs: ", err);
       }
-      return null;
-    } catch (err) {
-      enqueueSnackbar('Failed to fetch workout logs. Please try again later.', { variant: 'error' });
-      console.error("Trouble getting workout logs: ", err);
-    }
-  }, [enqueueSnackbar, setLastWorkoutLog]);
-  
+    },
+    [enqueueSnackbar, setLastWorkoutLog]
+  );
 
-  const fetchAndSetTodayWorkoutData = useCallback(async (fetchedUserData, fetchedLastWorkoutLog) => {
-    try {
-      const workoutDocRef = doc(db, "workoutTemplates", fetchedUserData.currentWorkoutTemplate);
-      const docSnap = await getDoc(workoutDocRef);
-      if (docSnap.exists()) {
-        const workoutTemplate = docSnap.data();
-        const lastDay = fetchedLastWorkoutLog ? fetchedLastWorkoutLog.day : "Day0"
-        const nextDayNumber =
-          ((parseInt(lastDay.replace("Day", "")) + 1 - 1) %
-            Object.keys(workoutTemplate.days).length) +
-          1;
-        const nextDay = `Day${nextDayNumber}`;
-        const todayWorkoutData = {
-          day: nextDay,
-          programName: workoutTemplate.programName,
-          exercises: workoutTemplate.days[nextDay]
-        };
-  
-        setTodayWorkoutData(todayWorkoutData);
-        return todayWorkoutData;
-      } else {
-        throw new Error("Workout template not found.");
+  const fetchAndSetTodayWorkoutData = useCallback(
+    async (fetchedUserData, fetchedLastWorkoutLog) => {
+      try {
+        const workoutDocRef = doc(
+          db,
+          "workoutTemplates",
+          fetchedUserData.currentWorkoutTemplate
+        );
+        const docSnap = await getDoc(workoutDocRef);
+        if (docSnap.exists()) {
+          const workoutTemplate = docSnap.data();
+          if (
+            !workoutTemplate.allDaysExercises ||
+            workoutTemplate.allDaysExercises.length === 0
+          ) {
+            throw new Error("Invalid workout template: no exercises defined.");
+          }
+
+          const lastWorkoutDayIndex = fetchedLastWorkoutLog
+            ? parseInt(fetchedLastWorkoutLog.dayIdx)
+            : -1; // start with -1 if no previous logs
+
+          const nextWorkoutDayIndex =
+            lastWorkoutDayIndex + 1 >= workoutTemplate.allDaysExercises.length
+              ? 0
+              : lastWorkoutDayIndex + 1;
+
+          const todayWorkoutData = {
+            dayIdx: nextWorkoutDayIndex.toString(),
+            dayName:
+              workoutTemplate.allDaysExercises[nextWorkoutDayIndex].dayName,
+            programName: workoutTemplate.programName,
+            TodaysExercises:
+              workoutTemplate.allDaysExercises[nextWorkoutDayIndex].exercises,
+          };
+
+          setTodayWorkoutData(todayWorkoutData);
+          return todayWorkoutData;
+        } else {
+          throw new Error("Workout template not found.");
+        }
+      } catch (err) {
+        enqueueSnackbar(
+          "Failed to fetch Workout Program details. Please try again later.",
+          { variant: "error" }
+        );
+        console.error("Error getting workout template:", err);
       }
-    } catch (err) {
-      enqueueSnackbar('Failed to fetch Workout Program details. Please try again later.', { variant: 'error' });
-      console.error("Error getting workout template:", err);
-    }
-  }, [enqueueSnackbar, setTodayWorkoutData]);
-
+    },
+    [enqueueSnackbar, setTodayWorkoutData]
+  );
 
   useEffect(() => {
     if (user) {
       (async () => {
         try {
+          setLoading(true);
           const fetchedUserData = await fetchAndSetUserData();
-          const fetchedLastWorkoutLog = await fetchAndSetLastWorkoutLog(fetchedUserData);
-          await fetchAndSetTodayWorkoutData(fetchedUserData, fetchedLastWorkoutLog);
-          enqueueSnackbar('Data loaded successfully.', { variant: 'success' });
+          const fetchedLastWorkoutLog = await fetchAndSetLastWorkoutLog(
+            fetchedUserData
+          );
+          console.log(
+            "useEffect:fetchedLastWorkoutLog:",
+            fetchedLastWorkoutLog
+          );
+          await fetchAndSetTodayWorkoutData(
+            fetchedUserData,
+            fetchedLastWorkoutLog
+          );
+          enqueueSnackbar("Data loaded successfully.", { variant: "success" });
         } catch (err) {
-          enqueueSnackbar('Failed to load data. Please try again later.', { variant: 'error' });
+          enqueueSnackbar("Failed to load data. Please try again later.", {
+            variant: "error",
+          });
         } finally {
           setLoading(false);
         }
       })();
     }
-  }, [user, enqueueSnackbar, fetchAndSetLastWorkoutLog, fetchAndSetTodayWorkoutData, fetchAndSetUserData]);
+  }, [
+    user,
+    enqueueSnackbar,
+    fetchAndSetLastWorkoutLog,
+    fetchAndSetTodayWorkoutData,
+    fetchAndSetUserData,
+  ]);
+
+
+
+  const handleInputChange = (exerciseId, setIndex, type, value) => {
+    if (type === "weight" && !isWeightValid(value)) return;
+    if (type === "reps" && !isRepValid(value)) return;
     
-
-  // Function to handle input change
-  const handleInputChange = (exercise, setIndex, type, value) => {
-    const newInputs = { ...workoutInputs };
-    if (!newInputs[exercise]) {
-      newInputs[exercise] = [];
-    }
-    if (!newInputs[exercise][setIndex]) {
-      newInputs[exercise][setIndex] = { weight: 0, reps: 0 };
-    }
-    newInputs[exercise][setIndex][type] = value;
-
-    setWorkoutInputs(newInputs);
-
-    // Store the data in localStorage
-    localStorage.setItem("workoutInputs", JSON.stringify(newInputs));
+    setTodayWorkoutData((prevState) => {
+      const newExercises = [...prevState.TodaysExercises];
+      const exerciseToUpdate = newExercises.find((ex) => ex.exerciseId === exerciseId);
+      if (exerciseToUpdate && exerciseToUpdate.sets[setIndex]) {
+        exerciseToUpdate.sets[setIndex][type] = value;
+      }
+      return { ...prevState, TodaysExercises: newExercises };
+    });
   };
-  // Fetch workoutInputs from localStorage on component mount
+  
+
+  // Local Storage Logic
   useEffect(() => {
-    const savedInputs = localStorage.getItem("workoutInputs");
-    if (savedInputs) {
-      setWorkoutInputs(JSON.parse(savedInputs));
+    // On component mount, get the data from local storage
+    const localData = localStorage.getItem("todayWorkoutData");
+    if (localData) {
+      setTodayWorkoutData(JSON.parse(localData));
     }
   }, []);
 
+  useEffect(() => {
+    // Every time todayWorkoutData changes, save it to local storage
+    if (todayWorkoutData) {
+      localStorage.setItem("todayWorkoutData", JSON.stringify(todayWorkoutData));
+    }
+  }, [todayWorkoutData]);
+
   const handleFinish = async () => {
     try {
-      // Structure the data
+      // Use todayWorkoutData for Firestore
+      const exercisesLog = todayWorkoutData.TodaysExercises.map((exercise) => {
+        return {
+          exerciseName: exercise.exerciseName,
+          exerciseId: exercise.exerciseId,
+          sets: exercise.sets,
+        };
+      });
+  
       const workoutLogData = {
-        WorkoutTemplate: userData.currentWorkoutTemplate, // Assuming you've stored user's current workout template in the user state
-        day: todayWorkoutData.day,
-        user: userData.uid, // user.uid,
+        WorkoutTemplate: userData.currentWorkoutTemplate,
+        dayIdx: todayWorkoutData.dayIdx,
+        user: userData.uid,
         date: new Date().toISOString(),
-        timeStarted: null, // Set this to the actual time when you implement the "Start Workout" feature
+        timeStarted: null,
         timeFinished: new Date().toISOString(),
-        exercises: workoutInputs,
+        exercises: exercisesLog,
       };
-
+      console.log("Writing to DB workoutLogData:", workoutLogData);
       // Push to Firestore
       const docRef = await addDoc(
         collection(db, "workoutLogs"),
@@ -166,150 +253,163 @@ function WorkoutView() {
       );
 
       console.log("Document written with ID: ", docRef.id);
+      setTodayWorkoutData(null);
+      localStorage.removeItem('todayWorkoutData');
 
-      // Clear the workoutInputs state and the localStorage
-      setWorkoutInputs({});
-      localStorage.removeItem("workoutInputs");
-    } catch (error) {
-      console.error("Error adding document: ", error);
-    }
+      enqueueSnackbar('Workout logged successfully!', { variant: 'success' });
+  } catch (error) {
+      enqueueSnackbar('There was a problem submitting your workout.', { variant: 'error' });
+  }
   };
+
   if (loading) {
-    return <p>Loading...</p>;
- }
- console.log('userData:', userData);
- console.log('lastWorkoutLog:', lastWorkoutLog);
- console.log('todayWorkoutData:', todayWorkoutData); 
- 
- return (
-  <div style={{ maxWidth: "460px", margin: "0 auto", padding: theme.spacing(2) }}>
-    <Typography variant="h2" gutterBottom style={{ fontWeight: 600, textAlign: 'center' }}>
-      Program: {todayWorkoutData.programName}
-    </Typography>
-    
-    {/* Section 1: Last Workout */}
-    {lastWorkoutLog && (
-      <Paper style={{ padding: theme.spacing(2), marginBottom: theme.spacing(3) }}>
-        <Typography variant="h5" gutterBottom>
-          Last Workout: {lastWorkoutLog.day}
-        </Typography>
-        {Object.entries(lastWorkoutLog.exercises).map(([exercise, sets]) => (
-          <Paper key={exercise} style={{ margin: theme.spacing(2, 0), padding: theme.spacing(2) }}>
-            <Typography variant="h6" gutterBottom>
-              {exercise}
-            </Typography>
-            {sets.map((set, index) => (
-              <Typography key={index}>
-                Set {index + 1}: {set.weight} Kg x {set.reps} reps
+    return (
+      <p>
+        <CircularIndeterminate />
+      </p>
+    );
+  }
+  console.log("userData:", userData);
+  console.log("lastWorkoutLog:", lastWorkoutLog);
+  console.log("todayWorkoutData:", todayWorkoutData);
+
+  if (loading) {
+    return (
+      <p>
+        <LinearIndeterminate />
+      </p>
+    );
+  }
+
+  return (
+    <div
+      style={{ maxWidth: "460px", margin: "0 auto", padding: theme.spacing(2) }}
+    >
+      <Typography
+        variant="h2"
+        gutterBottom
+        style={{ fontWeight: 600, textAlign: "center" }}
+      >
+        Program: {todayWorkoutData.programName}
+      </Typography>
+
+      {/* Section 1: Last Workout */}
+      {lastWorkoutLog && (
+        <Paper
+          style={{ padding: theme.spacing(2), marginBottom: theme.spacing(3) }}
+        >
+          <Typography variant="h5" gutterBottom>
+            Last Workout: {lastWorkoutLog.day}
+          </Typography>
+          {todayWorkoutData.TodaysExercises.map((exercise, exerciseIndex) => (
+            <Paper
+              key={exerciseIndex}
+              style={{ margin: theme.spacing(2, 0), padding: theme.spacing(2) }}
+            >
+              <Typography variant="h6" gutterBottom>
+                {exercise.exerciseName}
               </Typography>
-            ))}
-          </Paper>
-        ))}
-      </Paper>
-    )}
+              {exercise.sets.map((set, setIndex) => (
+                <Typography key={setIndex}>
+                  Set {setIndex + 1}: {set.weight} Kg x {set.reps} reps
+                </Typography>
+              ))}
+            </Paper>
+          ))}
+        </Paper>
+      )}
 
     {/* Section 2: Today's Workout Input Fields */}
     {todayWorkoutData && (
-      <Paper style={{ padding: theme.spacing(2), marginBottom: theme.spacing(3) }}>
-        <Typography variant="h5" gutterBottom>
-          Today's Workout: {todayWorkoutData.day}
-        </Typography>
-        {Object.entries(todayWorkoutData.exercises).map(
-          ([exercise, { sets, reps }]) => (
-            <Paper key={exercise} style={{ margin: theme.spacing(2, 0), padding: theme.spacing(2) }}>
-              <Typography variant="h6" gutterBottom>
-                {exercise}
-              </Typography>
-              {[...Array(sets)].map((_, index) => (
-                <Grid container key={index} alignItems="center" spacing={2} style={{ marginBottom: theme.spacing(1) }}>
-                  <Grid item>
-                    <Typography>Set {index + 1}</Typography>
-                  </Grid>
-                  <Grid item>
-                    <TextField
-                      label="weight"
-                      variant="outlined"
-                      value={
-                        workoutInputs[exercise] &&
-                        workoutInputs[exercise][index]
-                          ? workoutInputs[exercise][index].weight
-                          : ""
-                      }
-                      type="number"
-                      inputProps={{
-                          step: "0.5",
-                          pattern: "^-?\\d*(\\.5)?$"
-                      }}
-                      onChange={(e) =>{
-                        if (!e.target.validity.valid) {
-                          e.preventDefault();
-                          return;
-                      }
-                        handleInputChange(
-                          exercise,
-                          index,
-                          "weight",
-                          e.target.value
-                        )
-                        }
-                      }
-                      style={{ width: '80px' }} // width for 3-digit number
-                      InputProps={{
-                        style: { padding: '0px', fontSize: '1.1rem' }
-                    }}
-                    />
-                  </Grid>
-                  <Grid item>
-                    <Typography>Kg  x </Typography>
-                  </Grid>
-                  <Grid item>
-                    <TextField
-                      label="reps"
-                      variant="outlined"
-                      value={
-                        workoutInputs[exercise] &&
-                        workoutInputs[exercise][index]
-                          ? workoutInputs[exercise][index].reps
-                          : ""
-                      }
-                      type="number"
-                      inputProps={{
-                          step: "1",
-                          min: "0"
-                      }}
-                      onChange={(e) =>{
-                        if (!e.target.validity.valid) {
-                          e.preventDefault();
-                          return;
-                      }              
-                        handleInputChange(
-                          exercise,
-                          index,
-                          "reps",
-                          e.target.value
-                        )
-                      }
-                      }
-                      style={{ width: '70px' }} // width for 2-digit number
-                      InputProps={{
-                        style: { padding: '0px', fontSize: '1.1rem' }
-                    }}
-                    />
-                  </Grid>
-                  <Grid item>
-                    <Typography>reps</Typography>
-                  </Grid>
-                </Grid>
+      <DayLevelStyle>
+        <Typography>Today's Workout: {todayWorkoutData.dayName}</Typography>
+
+        <ExerLevelStyle>
+          {todayWorkoutData.TodaysExercises.map((exercise, exerciseIndex) => (
+            <React.Fragment key={exerciseIndex}>
+              <Typography>Ex {exerciseIndex + 1}: {exercise.exerciseName}</Typography>
+
+              {exercise.sets.map((set, index) => (
+                <SetLevelStyle key={index}>
+                  <div>
+                    Set {index + 1}:
+                      {exercise &&
+                        exerciseList[exercise.exerciseId].weighted && (
+                          <>
+                            <CustomTextField
+                              type="number"
+                              inputProps={{ step: "0.5", min: "0", max: "999" }}
+                              value={set.weight}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  index,
+                                  "weight",
+                                  e.target.value
+                                )
+                              }
+                            />{" "}
+                            Kg
+                          </>
+                        )}
+                      {exercise && exerciseList[exercise.exerciseId].reps && (
+                        <>
+                          X{" "}
+                          <CustomTextField
+                            type="number"
+                            inputProps={{ min: "0", max: "999" }}
+                            value={set.reps}
+                            onChange={(e) =>
+                              handleInputChange(index, "reps", e.target.value)
+                            }
+                          />{" "}
+                          reps
+                        </>
+                      )}
+                      {exercise && exerciseList[exercise.exerciseId].timed && (
+                        <>
+                          {" "}
+                          For{" "}
+                          <CustomTextField
+                            type="number"
+                            inputProps={{ min: "0", max: "59" }}
+                            placeholder="00"
+                            value={Math.floor((set.time || 0) / 60)}
+                            onChange={(e) => {
+                              const minutesValue =
+                                parseInt(e.target.value, 10) || 0;
+                              const currentSeconds = set.time % 60;
+                              updateTime(index, minutesValue, currentSeconds);
+                            }}
+                          />{" "}
+                          min{" "}
+                          <CustomTextField
+                            type="number"
+                            inputProps={{ min: "0", max: "59" }}
+                            placeholder="30"
+                            value={(set.time || 0) % 60}
+                            onChange={(e) => {
+                              const secondsValue =
+                                parseInt(e.target.value, 10) || 0;
+                              const currentMinutes = Math.floor(set.time / 60);
+                              updateTime(index, currentMinutes, secondsValue);
+                            }}
+                          />{" "}
+                          sec
+                        </>
+                      )}
+                    </div>
+                </SetLevelStyle>
               ))}
-              </Paper>
-            )
-          )}
-          <Button variant="contained" color="primary" onClick={handleFinish}>
-            Finish Workout
-          </Button>
-        </Paper>
-      )}
-  
+            </React.Fragment>
+          ))}
+        </ExerLevelStyle>
+
+        <Button variant="contained" color="primary" onClick={handleFinish}>
+          Finish Workout
+        </Button>
+      </DayLevelStyle>
+    )}
+
       <Grid container spacing={2} style={{ marginTop: theme.spacing(4) }}>
         <Grid item xs={12}>
           <Button
@@ -324,7 +424,6 @@ function WorkoutView() {
       </Grid>
     </div>
   );
-
 }
 
 export default WorkoutView;

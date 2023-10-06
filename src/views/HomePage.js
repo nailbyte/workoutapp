@@ -3,6 +3,7 @@
 import React from "react";
 import { Button, Grid, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import ResponsiveAppBar from "../components/layouts/ResponsiveAppBar";
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -20,9 +21,12 @@ const HomePage = () => {
     const handleCreateProgramView = () => {
         navigate("/createprogramview");
     };
-
+    const handleProgramView = () => {
+        navigate("/programview");
+    };
     return (
         <Container>
+            <ResponsiveAppBar />
             <Grid
                 container
                 spacing={3}
@@ -40,7 +44,7 @@ const HomePage = () => {
                         Start Workout
                     </Button>
                 </Grid>
-                <Grid item>
+                {/* <Grid item>
                     <Button
                         variant="contained"
                         color="secondary"
@@ -57,14 +61,23 @@ const HomePage = () => {
                     >
                         Create New Workout Program CF
                     </Button>
-                </Grid>
+                </Grid> */}
                 <Grid item>
                     <Button
                         variant="contained"
                         color="secondary"
                         onClick={handleCreateProgramView}
                     >
-                        Experiment: Create New Workout Program
+                        Create New Workout Program
+                    </Button>
+                </Grid>
+                <Grid item>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={handleProgramView}
+                    >
+                        See Your Workout Program
                     </Button>
                 </Grid>
             </Grid>

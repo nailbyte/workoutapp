@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { Button, Card, CardContent, TextField } from "@mui/material";
 import DayComponent from "../components/CreateProgram/DayComponent";
-import { LevelOneStyle } from "../styles/LevelledStyle";
+import { ProgLevelStyle } from "../styles/LevelledStyle";
 import { AuthContext } from "../components/AuthContext";
 import { useSnackbar } from "notistack";
 import { db } from "../firebase";
@@ -79,7 +79,7 @@ const CreateProgramView = () => {
 
   return (
     <div className="create-program">
-      <LevelOneStyle>
+      <ProgLevelStyle>
         <TextField
           label="Program Name"
           value={programName}
@@ -123,7 +123,7 @@ const CreateProgramView = () => {
         >
           Submit
         </Button>
-      </LevelOneStyle>
+      </ProgLevelStyle>
     </div>
   );
 };

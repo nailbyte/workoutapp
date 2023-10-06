@@ -4,7 +4,7 @@ function Copyright(props) {
     return (
       <Typography variant="body2" color="text.secondary" align="center" {...props}>
         {'Copyright © '}
-          Alpha Inc        
+          Don & Jon Inc         
         {new Date().getFullYear()}
         {'.'}
       </Typography>

@@ -10,15 +10,19 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import exerciseList from "../../utils/ExerciseList";
 import CustomTextField from "../common/CustomTextField";
-import { LevelThreeStyle, LevelFourStyle } from "../../styles/LevelledStyle";
+import { ExerLevelStyle, SetLevelStyle } from "../../styles/LevelledStyle";
 
-const exerciseOptions = Object.keys(exerciseList).map(key => ({
+const exerciseOptions = Object.keys(exerciseList).map((key) => ({
   id: key,
-  label: exerciseList[key].name
+  label: exerciseList[key].name,
 }));
 
-
-const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise }) => {
+const ExerciseComponent = ({
+  sets,
+  updateSets,
+  exerciseIndex,
+  initialExercise,
+}) => {
   const [selectedExercise, setSelectedExercise] = useState(initialExercise);
   const [selectedExerciseId, setSelectedExerciseId] = useState();
 
@@ -29,6 +33,10 @@ const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise })
   const isRepValid = (rep) => {
     return /^\d+$/.test(rep) && rep <= 999;
   };
+  const updateTime = (index, minutes, seconds) => {
+    const totalSeconds = (minutes * 60) + seconds;
+    handleInputChange(index, "time", totalSeconds);
+};
 
   const handleInputChange = (index, field, value) => {
     const newSets = [...sets];
@@ -39,27 +47,27 @@ const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise })
       index: exerciseIndex,
       exerciseName: selectedExercise,
       exerciseId: selectedExerciseId,
-      sets: newSets
-    });    
+      sets: newSets,
+    });
   };
 
   const handleExerciseChange = (event, newValue) => {
     if (newValue) {
-        setSelectedExercise(newValue.label);
-        setSelectedExerciseId(newValue.id);
-        updateSets({
-          index: exerciseIndex,
-          exerciseId: newValue.id,
-          exerciseName: newValue.label,
-          sets: sets,
-        });
+      setSelectedExercise(newValue.label);
+      setSelectedExerciseId(newValue.id);
+      updateSets({
+        index: exerciseIndex,
+        exerciseId: newValue.id,
+        exerciseName: newValue.label,
+        sets: sets,
+      });
     } else {
-        setSelectedExercise(null);
-        selectedExerciseId(null);
+      setSelectedExercise(null);
+      setSelectedExerciseId(null);
     }
-};
+  };
   return (
-    <LevelThreeStyle>
+    <ExerLevelStyle>
       <Typography>Ex {exerciseIndex + 1}:</Typography>
       <Autocomplete
         disablePortal
@@ -68,26 +76,30 @@ const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise })
         renderInput={(params) => <TextField {...params} label="Exercise" />}
         options={exerciseOptions}
         getOptionLabel={(option) => option.label} // to display the exercise name
-        value={exerciseOptions.find(option => option.id === selectedExerciseId) || null}
+        value={
+          exerciseOptions.find((option) => option.id === selectedExerciseId) ||
+          null
+        }
         onChange={handleExerciseChange}
       />
       {sets.map((set, index) => (
-        <LevelFourStyle key={index}>
+        <SetLevelStyle key={index}>
           <div>
             Set {index + 1}:
-            {selectedExerciseId && exerciseList[selectedExerciseId].weighted && (
-              <>
-                <CustomTextField
-                  type="number"
-                  inputProps={{ step: "0.5", min: "0", max: "999" }}
-                  value={set.weight}
-                  onChange={(e) =>
-                    handleInputChange(index, "weight", e.target.value)
-                  }
-                />{" "}
-                Kg
-              </>
-            )}
+            {selectedExerciseId &&
+              exerciseList[selectedExerciseId].weighted && (
+                <>
+                  <CustomTextField
+                    type="number"
+                    inputProps={{ step: "0.5", min: "0", max: "999" }}
+                    value={set.weight}
+                    onChange={(e) =>
+                      handleInputChange(index, "weight", e.target.value)
+                    }
+                  />{" "}
+                  Kg
+                </>
+              )}
             {selectedExerciseId && exerciseList[selectedExerciseId].reps && (
               <>
                 X{" "}
@@ -104,14 +116,29 @@ const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise })
             )}
             {selectedExerciseId && exerciseList[selectedExerciseId].timed && (
               <>
-                For{" "}
+                {" "}For{" "}
                 <CustomTextField
                   type="number"
-                  inputProps={{ min: "0" }}
-                  value={set.time}
-                  onChange={(e) =>
-                    handleInputChange(index, "time", e.target.value)
-                  }
+                  inputProps={{ min: "0", max: "59" }}
+                  placeholder="00"
+                  value={Math.floor((set.time || 0) / 60)}
+                  onChange={(e) => {
+                    const minutesValue = parseInt(e.target.value, 10) || 0;
+                    const currentSeconds = set.time % 60;
+                    updateTime(index, minutesValue, currentSeconds);
+                }}
+                />{" "}
+                min{" "}
+                <CustomTextField
+                  type="number"
+                  inputProps={{ min: "0", max: "59" }}
+                  placeholder="30"
+                  value={(set.time || 0) % 60} 
+                  onChange={(e) => {
+                    const secondsValue = parseInt(e.target.value, 10) || 0;
+                    const currentMinutes = Math.floor(set.time / 60);
+                    updateTime(index, currentMinutes, secondsValue);
+                }}
                 />{" "}
                 sec
               </>
@@ -127,7 +154,7 @@ const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise })
               <DeleteIcon fontSize="inherit" />
             </IconButton>
           </div>
-        </LevelFourStyle>
+        </SetLevelStyle>
       ))}
       <Button
         variant="outlined"
@@ -139,8 +166,8 @@ const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise })
           }
           const newSet =
           selectedExerciseId && exerciseList[selectedExerciseId].timed
-              ? { time: 30 }
-              : { weight: 10, reps: 12 };
+          ? { time: 30 }
+          : { weight: 10, reps: 12 };
           updateSets({
             index: exerciseIndex,
             exerciseId: selectedExerciseId,
@@ -151,7 +178,7 @@ const ExerciseComponent = ({ sets, updateSets, exerciseIndex, initialExercise })
       >
         Add Next Set
       </Button>
-    </LevelThreeStyle>
+    </ExerLevelStyle>
   );
 };
 

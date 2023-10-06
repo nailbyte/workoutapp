@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ExerciseComponent from "./ExerciseComponent";
 import { Button, TextField } from "@mui/material";
-import { LevelTwoStyle } from "../../styles/LevelledStyle";
+import { DayLevelStyle } from "../../styles/LevelledStyle";
 
 const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
   const [exercises, setExercises] = useState([]);
@@ -34,7 +34,11 @@ const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
   const handleAddExercise = () => {
     const newExercises = [
       ...exercises,
-      { exerciseName: null, exerciseId: null, sets: [{ weight: 10, reps: 10 }] },
+      {
+        exerciseName: null,
+        exerciseId: null,
+        sets: [{ /*time: 30,*/ weight: 10, reps: 10 }],
+      },
     ];
     setExercises(newExercises);
   };
@@ -51,7 +55,7 @@ console.log("Copied Exercises:", copiedExercises);
   };
 
   return (
-    <LevelTwoStyle>
+    <DayLevelStyle>
       <div className="day">
         <h2>
           <TextField
@@ -108,7 +112,7 @@ console.log("Copied Exercises:", copiedExercises);
           </div>
         )}
       </div>
-    </LevelTwoStyle>
+    </DayLevelStyle>
   );
 };
 

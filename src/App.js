@@ -11,6 +11,8 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
 import { SnackbarProvider } from 'notistack';
 import CreateProgramView from "./views/CreateProgramView";
+import ProgramView from "./views/ProgramView";
+import PlaygroundView from "./views/PlaygroundView";
 import Copyright from "./components/common/Copyright";
 function Main() {
     const { user } = useContext(AuthContext);
@@ -21,7 +23,7 @@ function Main() {
     }
 
     return (
-        <Container component="main" maxWidth="xs">
+        <Container component="main" maxWidth="sm"> 
             <CssBaseline />
             <Router>
                 <Routes>
@@ -30,6 +32,8 @@ function Main() {
                     <Route path="/workoutprogramformcf" element={<WorkoutProgramFormCF />} />
                     <Route path="/workoutprogramform" element={<WorkoutProgramForm />} />
                     <Route path="/createprogramview" element={<CreateProgramView />} />
+                    <Route path="/programview" element={<ProgramView />} />
+                    <Route path="/pg" element={<PlaygroundView />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </Router>
