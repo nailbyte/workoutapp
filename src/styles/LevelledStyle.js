@@ -37,11 +37,12 @@ const ExerLevelStyle = styled(Paper)(({ theme }) => ({
 }));
 
 const SetLevelStyle = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(0.5),
+  padding: '0px 8px',
+  // padding: theme.spacing(0.5),
   backgroundColor: 'white',
   borderBottom: '1px dotted' + theme.palette.grey[100],
   '& .MuiButton-root, & .MuiTypography-root, & .MuiTextField-root, & .MuiInputLabel-root, & .MuiInputBase-input': {
-    fontSize: '0.75rem',
+    fontSize: '.8rem',
   },
   '& .MuiButton-root': {
     padding: '8px 16px',

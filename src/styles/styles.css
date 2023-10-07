@@ -1,0 +1,69 @@
+.compact-input .MuiInputBase-input {
+    padding: 1px ;
+    padding-left: 1em;
+    /* padding-top: 1px;
+    padding-bottom: 1px; */
+  }
+  .compact-input .MuiInputLabel-root {
+    transform: scale(1);
+  }
+/*   
+  A Brief Overview of CSS Units:
+px (Pixel): A fixed-size unit that corresponds to literal screen pixels.
+            It's consistent but doesn't scale based on user settings or parent element sizes.
+
+em:     A relative unit of measurement that is based on the font-size of the element's parent
+         or the element itself. For instance, if a parent element has a font-size of 20px, then 1em for a child element would be 20px.
+
+rem (Root em): Similar to em, but always relative to the root element (<html>), 
+                making it more predictable than em in complex layouts.
+
+% (Percentage): A relative unit based on the parent element's size. 
+                It's mainly used for widths and heights but can be used with other properties too.
+
+vw/vh (Viewport Width/Viewport Height): Relative to the size of the viewport. 
+                                        1vw is 1% of the viewport's width, and 1vh is 1% of the viewport's height.
+
+pt (Point): Often used in print media, not recommended for screen displays. 
+            1pt is equal to 1/72 of an inch.
+
+When designing responsively, it's common to use a combination of these units to achieve the desired effect.
+ It's often a good practice to use rem for padding, margins,
+  and font sizes to ensure consistency and scalability across different devices and user settings. 
+  */
+
+
+  /* 
+One Value: e.g., padding: 10px;
+All four sides (top, right, bottom, left) will have a padding of 10px.
+
+Two Values: e.g., padding: 10px 20px;
+    Vertical (top and bottom) padding is 10px.
+    Horizontal (right and left) padding is 20px.
+
+
+Three Values: e.g., padding: 10px 20px 30px;
+    Top padding is 10px.
+    Right and left padding are 20px.
+    Bottom padding is 30px.
+
+Four Values: e.g., padding: 10px 20px 30px 40px;
+    Top padding is 10px.
+    Right padding is 20px.
+    Bottom padding is 30px.
+    Left padding is 40px.
+
+    The same rules apply to the margin property. 
+*/
+
+
+
+
+
+/* <Typography style={{ display: 'inline-block' }}>Set 1:{" "}</Typography>
+<TextField className="compact-input" style={{ display: 'inline-block', verticalAlign: 'middle' }} /> kg X{" "}
+
+A few things to note:
+
+display: 'inline-block' makes the elements appear inline.
+verticalAlign: 'middle' is added to the <TextField> to vertically center it relative to the adjacent text, as TextField components usually have some height to them. */

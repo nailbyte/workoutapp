@@ -3,7 +3,7 @@ import { TextField } from "@mui/material";
 const CustomTextField = (props) => (
     <TextField
       sx={{
-        margin: "0 4px",
+        // margin: "4px 4px",
         "& .MuiInputBase-input": {
           paddingTop: "0px",
           paddingBottom: "0px",

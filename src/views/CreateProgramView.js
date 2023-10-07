@@ -1,11 +1,13 @@
 import React, { useState, useContext } from "react";
-import { Button, Card, CardContent, TextField } from "@mui/material";
+import { Button, Typography, CardContent, TextField } from "@mui/material";
 import DayComponent from "../components/CreateProgram/DayComponent";
-import { ProgLevelStyle } from "../styles/LevelledStyle";
+import { ProgLevelStyle, DayLevelStyle } from "../styles/LevelledStyle";
 import { AuthContext } from "../components/AuthContext";
 import { useSnackbar } from "notistack";
 import { db } from "../firebase";
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+
+import CustomTextField from "../components/common/CustomTextField";
 
 const CreateProgramView = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -77,55 +79,62 @@ const CreateProgramView = () => {
     }
   };
 
-  return (
-    <div className="create-program">
-      <ProgLevelStyle>
-        <TextField
-          label="Program Name"
-          value={programName}
-          onChange={(e) => setProgramName(e.target.value)}
-          fullWidth
-        />
+return (
+        <ProgLevelStyle>
+            <Typography
+                variant="h2"
+                gutterBottom
+                style={{ fontWeight: 600, textAlign: "center" }}
+            >
+                Create Program
+            </Typography>
 
-        {Array.from({ length: numberOfDays }).map((_, dayIndex) => (
-          <DayComponent
-            key={dayIndex}
-            dayNumber={dayIndex + 1}
-            allDaysExercises={allDaysExercises}
-            setExercisesForDay={(exercisesForDay) => {
-              const updatedDays = [...allDaysExercises];
-              updatedDays[dayIndex] = {
-                ...updatedDays[dayIndex],
-                ...exercisesForDay,
-              };
-              setAllDaysExercises(updatedDays);
-            }}
-          />
-        ))}
-        <div className="day-actions">
-          <Button variant="outlined" color="primary" onClick={handleAddDay}>
-            Add Day
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleRemoveDay}
-            disabled={numberOfDays <= 1}
-          >
-            Remove Last Day
-          </Button>
-        </div>
-        <Button
-          // style={{ marginTop: "20px" }}
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-        >
-          Submit
-        </Button>
-      </ProgLevelStyle>
-    </div>
-  );
-};
+            <TextField
+                label="Program Name"
+                value={programName}
+                onChange={(e) => setProgramName(e.target.value)}
+                fullWidth
+            />
+            <DayLevelStyle>
+            {Array.from({ length: numberOfDays }).map((_, dayIndex) => (
+                <DayComponent
+                    key={dayIndex}
+                    dayNumber={dayIndex + 1}
+                    allDaysExercises={allDaysExercises}
+                    setExercisesForDay={(exercisesForDay) => {
+                        const updatedDays = [...allDaysExercises];
+                        updatedDays[dayIndex] = {
+                            ...updatedDays[dayIndex],
+                            ...exercisesForDay,
+                        };
+                        setAllDaysExercises(updatedDays);
+                    }}
+                />
+            ))}
 
+            
+                <Button variant="outlined" color="primary" onClick={handleAddDay}>
+                    Add Day
+                </Button>
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleRemoveDay}
+                    disabled={numberOfDays <= 1}
+                >
+                    Remove Last Day
+                </Button>
+            </DayLevelStyle>
+
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit}
+                style={{ marginTop: '20px' }}
+            >
+                Submit
+            </Button>
+        </ProgLevelStyle>
+    );
+}
 export default CreateProgramView;

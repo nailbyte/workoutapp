@@ -15,6 +15,8 @@ import ProgramView from "./views/ProgramView";
 import PlaygroundView from "./views/PlaygroundView";
 import Copyright from "./components/common/Copyright";
 import ResponsiveAppBar from "./components/layouts/ResponsiveAppBar";
+import './styles/styles.css'; 
+
 function Main() {
     const { user } = useContext(AuthContext);
     console.log('Main rendered with user:', user);

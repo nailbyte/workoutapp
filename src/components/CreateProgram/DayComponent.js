@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import ExerciseComponent from "./ExerciseComponent";
 import { Button, TextField } from "@mui/material";
 import { DayLevelStyle } from "../../styles/LevelledStyle";
+import CustomTextField from "../common/CustomTextField";
 
 const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
   const [exercises, setExercises] = useState([]);
@@ -59,12 +60,11 @@ console.log("Copied Exercises:", copiedExercises);
       <div className="day">
         <h2>
           <TextField
-            label="Day Name"
-            value={dayName}
-            onChange={(e) => setDayName(e.target.value)}
+            label= {`Day: ${dayNumber}`}
+            //placeholder={dayName}
             variant="outlined"
-            size="small"
             style={{ marginBottom: "10px" }}
+            onChange={(e) => setDayName(e.target.value)}
           />
         </h2>
 
