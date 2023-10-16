@@ -22,11 +22,42 @@ const CreateProgramView = () => {
     },
   ]);
   const [selectedDayToCopy, setSelectedDayToCopy] = useState(1);
+  const [programNameError, setProgramNameError] = useState(false);
+  const [programNameHelperText, setProgramNameHelperText] = useState('');
+  const validateProgramName = () => {
+    if (programName.trim() === '') {
+      setProgramNameError(true);
+      setProgramNameHelperText('Program Name is required!');
+      return false;
+    }
+
+    setProgramNameError(false);
+    setProgramNameHelperText('');
+    return true;
+  };
+  
+  const handleProgramNameChange = (e) => {
+    setProgramName(e.target.value);
+    // Optional: Validate while typing (for instant feedback)
+    validateProgramName(); //TBD check this
+  };
+
 
   const handleSubmit = async () => {
+    //Check if form is valid
+    const isProgramValid = validateProgramName(); // You can add more validation checks as needed
+    if (!isProgramValid) {
+      return;
+    }
+    if (allDaysExercises.length === 0 || allDaysExercises[0].exercises.length === 0) {
+      enqueueSnackbar("Program can't be empty.", {
+        variant: "error",
+      });
+      return;
+    }
     
-
     try {
+      
       if (!user) {
         throw new Error("User is empty.");
       }
@@ -36,6 +67,7 @@ const CreateProgramView = () => {
       if (!userSnap.exists()) {
         throw new Error("User data not found.");
       }
+      
       const programData = {
         programName: programName,
         allDaysExercises,
@@ -62,6 +94,14 @@ const CreateProgramView = () => {
   };
 
   const handleAddDay = () => {
+    //Add validation for the previous day
+    if (allDaysExercises[allDaysExercises.length - 1].exercises.length === 0) {
+      enqueueSnackbar("Add exercise for the previous day first.", {
+        variant: "error",
+      });
+      return;
+    }
+
     setNumberOfDays((prev) => prev + 1);
     setAllDaysExercises((prev) => [
       ...prev,
@@ -70,6 +110,12 @@ const CreateProgramView = () => {
   };
 
   const handleCopyDay = () => {
+    if (allDaysExercises[selectedDayToCopy - 1].exercises.length === 0) {
+      enqueueSnackbar("First, add exercises in the day which you're trying to copy", {
+        variant: "error",
+      });
+      return;
+    }
     const sourceDayExercises = allDaysExercises[selectedDayToCopy - 1];
     if (sourceDayExercises) {
         const copiedDay = {
@@ -105,11 +151,13 @@ return (
             </Typography>
 
             <TextField
-                label="Program Name"
-                required
-                value={programName}
-                onChange={(e) => setProgramName(e.target.value)}
-                fullWidth
+        label="Program Name"
+        required
+        error={programNameError}
+        helperText={programNameHelperText}
+        value={programName}
+        onChange={handleProgramNameChange}
+        fullWidth
             />
             <DayLevelStyle>
             {Array.from({ length: numberOfDays }).map((_, dayIndex) => (
