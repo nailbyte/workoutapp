@@ -21,8 +21,8 @@ import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
 const pages = [
-  { name: "Workout", path: "/workoutview" },
-  { name: "Program", path: "/programview" },
+  { name: "Start Workout", path: "/workoutview" },
+  { name: "Current Program", path: "/programview" },
   { name: "New Program", path: "/createprogramview" },
 ];
 

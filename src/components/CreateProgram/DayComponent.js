@@ -3,11 +3,16 @@ import ExerciseComponent from "./ExerciseComponent";
 import { Button, TextField } from "@mui/material";
 import { DayLevelStyle } from "../../styles/LevelledStyle";
 import CustomTextField from "../common/CustomTextField";
+//import { enqueueSnackbar } from "notistack";
+import { useSnackbar } from 'notistack';
 
 const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
+  const { enqueueSnackbar } = useSnackbar();
   const [exercises, setExercises] = useState([]);
-  const [dayName, setDayName] = useState(`Day ${dayNumber}`);
+  const [dayName, setDayName] = useState(`Day: ${dayNumber}`);
   const [selectedDayToCopy, setSelectedDayToCopy] = useState(1);
+  const [, forceUpdate] = useState();
+
 
   const updateExerciseSets = (exerciseDetails) => {
     const { index, sets, exerciseName, exerciseId } = exerciseDetails;
@@ -26,34 +31,55 @@ const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
   
 
   useEffect(() => {
+    const filteredExercises = exercises.filter(ex => ex.exerciseName && ex.sets.length > 0);
     setExercisesForDay({
       dayName: dayName,
-      exercises: exercises,
+      exercises: filteredExercises,
     });
   }, [exercises, dayName]);
+  
 
   const handleAddExercise = () => {
-    const newExercises = [
-      ...exercises,
-      {
-        exerciseName: null,
-        exerciseId: null,
-        sets: [{ /*time: 30,*/ weight: 10, reps: 10 }],
-      },
-    ];
-    setExercises(newExercises);
-  };
-
-  const handleCopyExercises = (selectedDay) => {
-    const selectedDayExercises = allDaysExercises[selectedDay - 1];
-    if (selectedDayExercises && selectedDayExercises.exercises) {
-      const copiedExercises = JSON.parse(JSON.stringify(selectedDayExercises.exercises));
-      setExercises(copiedExercises);
-      console.log("Selected Day Exercises:", selectedDayExercises);
-console.log("Copied Exercises:", copiedExercises);
+    const lastExercise = exercises[exercises.length - 1];
+  
+    if (!lastExercise || (lastExercise && lastExercise.exerciseName && lastExercise.sets.length > 0)) {
+      const newExercises = [
+        ...exercises,
+        {
+          exerciseName: null,
+          exerciseId: null,
+          sets: [{ /*time: 30,*/ weight: 10, reps: 10 }],
+        },
+      ];
+      setExercises(newExercises);
+    } else {
+      enqueueSnackbar('Please fill in the previous exercise before adding a new one.', { variant: 'error' });
 
     }
   };
+  
+
+  // const handleCopyExercises =  (selectedDay) => {
+  //   console.log("Before update allDaysExercises:", allDaysExercises);
+  //   const selectedDayExercises = allDaysExercises[selectedDay - 1];
+  //   if (selectedDayExercises && selectedDayExercises.exercises) {
+  //     const updatedAllDaysExercises = [...allDaysExercises]; // Shallow copy of the array
+  //     updatedAllDaysExercises[updatedAllDaysExercises.length-1].exercises = JSON.parse(JSON.stringify(allDaysExercises[selectedDay - 1].exercises));
+      
+  //     setExercises(selectedDayExercises.exercises); // Assuming setAllDaysExercises is the setter for the allDaysExercises state
+  //     console.log("Updated Exercises:", updatedAllDaysExercises);
+  //     //forceUpdate({});
+
+  //   }
+  //   else {
+  //     enqueueSnackbar('Please select a valid day to copy exercises from.', { variant: 'error' });
+  //   }
+  // };
+
+  //TBD remove this
+  useEffect(() => {
+    console.log("useEffect: Updated state allDaysExercises:", allDaysExercises);
+}, [allDaysExercises]);
 
   return (
     <DayLevelStyle>
@@ -68,13 +94,16 @@ console.log("Copied Exercises:", copiedExercises);
           />
         </h2>
 
+        {console.log("Inside DayComponent: exercises:", exercises)}
         {exercises.map((exercise, exerciseIndex) => (
           <ExerciseComponent
             key={exerciseIndex} // Using exerciseIndex as key to avoid the warning.
             exerciseIndex={exerciseIndex}
             sets={exercise.sets}
             updateSets={updateExerciseSets}
-            initialExercise={exercise.exerciseName}
+            //initialExercise={exercise.exerciseName}
+            exerciseName={exercise.exerciseName}
+
           />
         ))}
 
@@ -86,7 +115,8 @@ console.log("Copied Exercises:", copiedExercises);
         >
           Add Exercise
         </Button>
-        {dayNumber > 1 && (
+        {/* copy element starts */}
+        {/* {dayNumber > 1 && (
           <div>
             <label>Copy exercises from: </label>
             <select
@@ -101,6 +131,7 @@ console.log("Copied Exercises:", copiedExercises);
                 )
               )}
             </select>
+            {console.log("DayComp:Above the button to copy: :", allDaysExercises)}
             <Button
               variant="contained"
               color="primary"
@@ -110,7 +141,8 @@ console.log("Copied Exercises:", copiedExercises);
               Copy
             </Button>
           </div>
-        )}
+        )} */}
+        {/* copy element ends */}
       </div>
     </DayLevelStyle>
   );

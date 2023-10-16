@@ -7,6 +7,34 @@
   .compact-input .MuiInputLabel-root {
     transform: scale(1);
   }
+
+  .lottie-animation {
+    width: 50vw;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+    .lottie-animation {
+        width: 80vw;
+        max-width: 300px;
+    }
+}
+
+.lottie-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0); /* Semi-transparent white background */
+  z-index: 10; /* Ensure the overlay is above the other content */
+}
+
+
 /*   
   A Brief Overview of CSS Units:
 px (Pixel): A fixed-size unit that corresponds to literal screen pixels.

@@ -15,23 +15,26 @@ import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Logo from '../assets/images/Logo.svg';
+import Lottie  from 'lottie-react';
+import successAnimation from '../assets/images/Celebration.json';
+import Grid from '@mui/material/Grid';
+
+
 const pages = ["Products", "Pricing", "Blog"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
+
 function PlayGroundView() {  
 return (
-<div style={{
-  backgroundImage: `url(${Logo})`,
-  backgroundSize: '80% auto',  // This will make it cover 100% width
-  backgroundRepeat: 'no-repeat',
-  width: '100%',               // Set width to 100% of its container
-  paddingTop: '100%',            // This will be the aspect ratio, see below
-}}>
-  <div style={{ backgroundColor: '#ffc107', padding: '10px', textAlign: 'center' }}>
-    🚧 This app is currently in alpha. It's a work in progress and may contain bugs.
-    Quality Engineer 👨 is Don is finding bugs 🐛 and Jon is fixing them 🛠️
-</div>
-
+<div>
+<Grid item>
+          <Lottie 
+            animationData={successAnimation}
+            loop={true}
+            autoplay
+            className="lottie-animation"
+          />
+        </Grid>
 </div>
 
 

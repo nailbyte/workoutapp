@@ -25,22 +25,29 @@ const HomePage = () => {
         navigate("/programview");
     };
     return (
-        <div style={{
+      <div
+        style={{
           backgroundImage: `url(${Logo})`,
-          backgroundSize: '80% auto',  // This will make it cover 100% width
-          backgroundRepeat: 'no-repeat',
-          width: '100%',               // Set width to 100% of its container
-          paddingTop: '100%',            // This will be the aspect ratio, see below
-        }}>
-          <div style={{ backgroundColor: '#ffc107', padding: '10px', textAlign: 'center' }}>
-            🚧 This app is currently in alpha. It's a work in progress and may contain bugs.
-            Quality Engineer 👨 is Don is finding bugs 🐛 and Jon is fixing them 🛠️
+          backgroundSize: "80% auto",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center center",
+          width: "100%",
+          paddingTop: "100%",
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "#ffc107",
+            padding: "10px",
+            textAlign: "center",
+          }}
+        >
+          🚧 This app is currently in alpha. It's a work in progress and may
+          contain bugs. Quality Engineer 👨 is Don is finding bugs 🐛 and Jon is
+          fixing them 🛠️
         </div>
-        
-        </div>
-        
-        
-        );
+      </div>
+    );
     // return (
     //     <Container>
     //         <Grid

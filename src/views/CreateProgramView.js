@@ -17,10 +17,11 @@ const CreateProgramView = () => {
   const [numberOfDays, setNumberOfDays] = useState(1);
   const [allDaysExercises, setAllDaysExercises] = useState([
     {
-      dayName: `Day 1`,
+      dayName: `Day: 1`,
       exercises: [],
     },
   ]);
+  const [selectedDayToCopy, setSelectedDayToCopy] = useState(1);
 
   const handleSubmit = async () => {
     
@@ -64,9 +65,23 @@ const CreateProgramView = () => {
     setNumberOfDays((prev) => prev + 1);
     setAllDaysExercises((prev) => [
       ...prev,
-      { dayName: `Day ${prev.length + 1}`, exercises: [] },
+      { dayName: `Day: ${prev.length + 1}`, exercises: [] },
     ]);
   };
+
+  const handleCopyDay = () => {
+    const sourceDayExercises = allDaysExercises[selectedDayToCopy - 1];
+    if (sourceDayExercises) {
+        const copiedDay = {
+            dayName: `Copy of ${sourceDayExercises.dayName}`,
+            exercises: [...sourceDayExercises.exercises],
+        };
+        setAllDaysExercises(prev => [...prev, copiedDay]);
+        setNumberOfDays(prev => prev + 1);
+    } else {
+        enqueueSnackbar('Error copying the day. Please try again.', { variant: 'error' });
+    }
+};
 
   const handleRemoveDay = () => {
     if (numberOfDays > 1) {
@@ -116,6 +131,24 @@ return (
                 <Button variant="outlined" color="primary" onClick={handleAddDay}>
                     Add Day
                 </Button>
+                       {/* Dropdown to select and repeat a day */}
+        {allDaysExercises.length > 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <Typography variant="body1">Repeat a Day: </Typography>
+            <select
+              onChange={(e) => handleCopyDay(Number(e.target.value))}
+            >
+              <option value="" disabled selected>
+                Select a day
+              </option>
+              {allDaysExercises.map((day, index) => (
+                <option key={index} value={index + 1}>
+                  {day.dayName}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
                 <Button
                     variant="contained"
                     color="secondary"
