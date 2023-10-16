@@ -106,6 +106,7 @@ return (
 
             <TextField
                 label="Program Name"
+                required
                 value={programName}
                 onChange={(e) => setProgramName(e.target.value)}
                 fullWidth
