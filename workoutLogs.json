@@ -1,0 +1,37 @@
+  {
+    "workoutLogId1": {
+      "WorkoutTemplate": "WorkoutTemplateId1",
+      "day": "Day1",
+      "user": "userId1",
+      "date": "2023-09-25T18:00:00Z",
+      "timeStarted": "2023-09-25T18:05:00Z",
+      "timeFinished": "2023-09-25T19:05:00Z",
+      "exercises": {
+        "Bench Press": [{"weight": 80, "reps": 5}, {"weight": 85, "reps": 5}, {"weight": 90, "reps": 5}],
+        "Squat": [{"weight": 100, "reps": 5}, {"weight": 105, "reps": 5}, {"weight": 110, "reps": 5}]
+      }
+    },
+    "workoutLogId2": {
+      "WorkoutTemplate": "WorkoutTemplateId1",
+      "day": "Day2",
+      "user": "userId1",
+      "date": "2023-09-26T18:00:00Z",
+      "timeStarted": "2023-09-26T18:10:00Z",
+      "timeFinished": "2023-09-26T19:15:00Z",
+      "exercises": {
+        "Overhead Press": [{"weight": 60, "reps": 5}, {"weight": 65, "reps": 5}],
+        "Deadlift": [{"weight": 120, "reps": 5}, {"weight": 130, "reps": 5}]
+      }
+    },
+    "workoutLogId3": {
+      "WorkoutTemplateId": "WorkoutTemplateId2",
+      "user": "user2Id",
+      "date": "2023-09-25T18:30:00Z",
+      "timeStarted": "2023-09-25T18:40:00Z",
+      "timeFinished": "2023-09-25T19:40:00Z",
+      "exercises": {
+        "Bench Press": [{"weight": 75, "reps": 5}, {"weight": 80, "reps": 5}],
+        "Squat": [{"weight": 95, "reps": 5}, {"weight": 100, "reps": 5}]
+      }
+    }
+  }

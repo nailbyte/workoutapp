@@ -1,0 +1,18 @@
+{
+    "rAXi1zuhBSWRDRLQLlvdoUD14nY2": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "johndoe@email.com",
+      "currentWorkoutTemplate": "WorkoutTemplateId1",
+      "joinDate": "2023-09-10T12:00:00Z",
+      "lastLogin": "2023-09-25T17:00:00Z"
+    },
+    "xvScYoOTvchLC9VQJPPXdMIXkSX2": {
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "email": "janesmith@email.com",
+      "currentWorkoutTemplate": "WorkoutTemplateId2",
+      "joinDate": "2023-09-15T12:10:00Z",
+      "lastLogin": "2023-09-24T16:00:00Z"
+    }
+}

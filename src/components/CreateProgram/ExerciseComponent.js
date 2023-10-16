@@ -25,15 +25,18 @@ const ExerciseComponent = ({
   updateSets,
   exerciseIndex,
   initialExercise,
+  //exerciseName,
 }) => {
-  const [selectedExercise, setSelectedExercise] = useState(initialExercise);
+  //const [selectedExercise, setSelectedExercise] = useState(initialExercise);
   const [selectedExerciseId, setSelectedExerciseId] = useState();
+  const [selectedExercise, setSelectedExercise] = useState();
+
   const { enqueueSnackbar } = useSnackbar();
 
   const convertToTotalSeconds = (minutes, seconds) => {
     return (minutes || 0) * 60 + (seconds || 0);
   };
-
+console.log("ExerciseComponent: sets:", sets);
   const handleTimeChange = (index, type, value) => {
     const newSets = [...sets];
     newSets[index][type] = value !== "" ? parseInt(value, 10) : undefined;
@@ -131,7 +134,8 @@ const ExerciseComponent = ({
         onChange={handleExerciseChange}
       />
       <SetLevelStyle>
-        {sets.map((set, index) => (
+        {console.log("ExerciseComponent: sets:", sets)}
+        {sets && sets.map((set, index) => (
           <div
             key={index}
             style={{ backgroundColor: set.saved ? "lightgray" : "transparent" }}
