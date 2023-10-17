@@ -33,7 +33,7 @@ import { ProgLevelStyle, DayLevelStyle } from "../styles/LevelledStyle";
 import { AuthContext } from "../components/AuthContext";
 import { useSnackbar } from "notistack";
 import { db } from "../firebase";
-import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, updateDoc } from "firebase/firestore";
 
 import CustomTextField from "../components/common/CustomTextField";
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from "@mui/material";
@@ -180,6 +180,13 @@ const CreateProgramView = () => {
       );
         setProgramCreated(true);
         setPushedProgramData(programData);
+        //if user has no current workout template, set this as the current one
+        if (!userSnap.data().currentWorkoutTemplate) {
+          await updateDoc(userDocRef, {
+            currentWorkoutTemplate: docRef.id,
+          });
+        }
+
       enqueueSnackbar("Program saved successfully!", { variant: "success" });
     } catch (error) {
       console.error("Error writing workout program: ", error);

@@ -1,11 +1,17 @@
-// AuthContext.js
-
 import React, { useState, useEffect } from 'react';
-import { auth } from '../firebase';
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut,  createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from '../firebase'; // assuming you've exported firestore from firebase.js
+import { addDoc, collection, doc, getDoc, setDoc } from "firebase/firestore";
+import { 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signInWithEmailAndPassword, 
+  signOut,  
+  createUserWithEmailAndPassword 
+} from "firebase/auth";
+
 
 const AuthContext = React.createContext({
-  user: null,  // or some default value
+  user: null,
   // other properties...
 });
 
@@ -16,7 +22,6 @@ function AuthProvider({ children }) {
     const cancelAuthListener = auth.onAuthStateChanged((user) => {
       setUser(user);
       console.log('Setting user:', user);
-      //setLoading(false);
     });
 
     return cancelAuthListener;
@@ -33,9 +38,18 @@ function AuthProvider({ children }) {
 
   const handleSignUp = async (email, password) => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-    }
-    catch (err) {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Store user details in Firestore
+      const userRef = doc(db, "users", user.uid); 
+      await setDoc(userRef, {
+        email: email,
+        joinDate: new Date().toISOString(),
+        // ... Add other default values for the user here if you need
+      });
+
+    } catch (err) {
       throw err;
     }
   };
@@ -43,9 +57,22 @@ function AuthProvider({ children }) {
   const handleGoogleSignIn = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-    }
-    catch (err) {
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+
+      // Check and add user details in Firestore (if not already added)
+      const userRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userRef);
+      
+      if (!docSnap.exists()) {
+        await setDoc(userRef, {
+          email: user.email,
+          joinDate: new Date().toISOString(),
+          // ... Add other default values for the user here if you need
+        });
+      }
+
+    } catch (err) {
       throw err;
     }
   };
@@ -75,4 +102,4 @@ function AuthProvider({ children }) {
   );
 }
 
-export { AuthContext, AuthProvider }; 
+export { AuthContext, AuthProvider };
