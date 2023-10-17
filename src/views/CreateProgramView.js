@@ -243,7 +243,7 @@ const CreateProgramView = () => {
     if (isDayValid(index)) {
       items.push(
         <MenuItem
-          key={index}
+          key={day.id}
           onClick={() => handleDayRepeat(index)}
         >
           {day.dayName}
@@ -251,7 +251,7 @@ const CreateProgramView = () => {
       );
 
       if (index !== allDaysExercises.length - 1) {
-        items.push(<Divider key={`divider-${index}`} />);
+        items.push(<Divider key={`divider-${day.id}`} />);
       }
     }
     return items;

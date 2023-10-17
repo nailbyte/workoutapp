@@ -137,16 +137,6 @@ const DayComponent = ({ dayNumber, initialDayName, allDaysExercises, setExercise
             <PlaylistAddIcon />
             <Typography variant="caption">Add Exercise</Typography>
           </Box>
-
-          {/* <Button
-          sx={{ m: 1 }}
-          variant="outlined"
-          color="primary"
-          size="small"
-          onClick={handleAddExercise}
-        >
-          Add Exercise
-        </Button> */}
         </ExerLevelStyle>
       </div>
     </DayLevelStyle>

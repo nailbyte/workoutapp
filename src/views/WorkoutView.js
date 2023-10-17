@@ -368,13 +368,13 @@ function WorkoutView() {
                 <Typography>Last Workout: {lastWorkoutLog.dayName}</Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <Paper
+                {/* <Paper
                   style={{
                     width: "100%",
                     padding: theme.spacing(2),
                     marginBottom: theme.spacing(3),
                   }}
-                >
+                > */}
                   <ExerLevelStyle>
                     {lastWorkoutLog.exercises.map((exercise, exerciseIndex) => (
                       <Paper
@@ -396,7 +396,7 @@ function WorkoutView() {
                       </Paper>
                     ))}
                   </ExerLevelStyle>
-                </Paper>
+                {/* </Paper> */}
               </AccordionDetails>
             </Accordion>
           </DayLevelStyle>
