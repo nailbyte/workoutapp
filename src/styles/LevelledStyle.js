@@ -22,7 +22,7 @@ const DayLevelStyle = styled(Paper)(({ theme }) => ({
   },
   '& .MuiButton-root': {
     padding: '12px 24px',
-  }
+  },
 }));
 
 const ExerLevelStyle = styled('div')(({ theme }) => ({

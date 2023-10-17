@@ -25,6 +25,7 @@ import {
   Delete as DeleteIcon,
 } from "@mui/icons-material";
 
+import CloseIcon from '@mui/icons-material/Close';
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import EventRepeatIcon from "@mui/icons-material/EventRepeat";
 import DayComponent from "../components/CreateProgram/DayComponent";
@@ -35,6 +36,8 @@ import { db } from "../firebase";
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
 
 import CustomTextField from "../components/common/CustomTextField";
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from "@mui/material";
+import { v4 as uuidv4 } from 'uuid';
 
 const CreateProgramView = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -52,7 +55,25 @@ const CreateProgramView = () => {
   const [programNameError, setProgramNameError] = useState(false);
   const [programNameHelperText, setProgramNameHelperText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [dayToDelete, setDayToDelete] = useState(null);
+  const [hoveredDayIndex, setHoveredDayIndex] = useState(null);
 
+  const openConfirmationDialog = (dayIndex) => {
+    setDayToDelete(dayIndex);
+    setOpenDeleteDialog(true);
+  };
+  
+  const closeConfirmationDialog = () => {
+    setOpenDeleteDialog(false);
+    setDayToDelete(null);
+  };
+  
+  const confirmDelete = () => {
+    handleRemoveDay(dayToDelete);
+    closeConfirmationDialog();
+  };
+  
   const isDayValid = (dayIdx) => {
     const dayExercises = allDaysExercises[dayIdx].exercises;
 
@@ -167,11 +188,18 @@ const CreateProgramView = () => {
       });
       return;
     }
+    if(isProgramValid() === false) {
+      enqueueSnackbar("Please fill in the previous days before adding a new one.", {
+        variant: "error",
+      });
+      return;
+    }
 
     setNumberOfDays((prev) => prev + 1);
+    const newDayId = uuidv4(); // Generate a new UUID for the day
     setAllDaysExercises((prev) => [
       ...prev,
-      { dayName: `Day: ${prev.length + 1}`, exercises: [] },
+      { id: newDayId, dayName: `Day: ${prev.length + 1}`, exercises: [] },
     ]);
   };
 
@@ -200,16 +228,15 @@ const CreateProgramView = () => {
     }
   };
 
-  const handleRemoveDay = () => {
-    if (numberOfDays > 1) {
-      setNumberOfDays((prev) => prev - 1);
-      setAllDaysExercises((prev) => {
-        const newDays = [...prev];
-        newDays.pop();
-        return newDays;
-      });
-    }
+  const handleRemoveDay = (dayIndexToRemove) => {
+    setNumberOfDays((prev) => prev - 1);
+    setAllDaysExercises((prev) => {
+      const newDays = [...prev];
+      newDays.splice(dayIndexToRemove, 1);
+      return newDays;
+    });
   };
+  
 
   const menuItems = allDaysExercises.flatMap((day, index) => {
     const items = [];
@@ -230,7 +257,6 @@ const CreateProgramView = () => {
     return items;
   });
 
-  //V1-Introduction of Box and Grids
   return (
     <Box p={3}>
       <Typography variant="h2" gutterBottom align="center">
@@ -247,25 +273,72 @@ const CreateProgramView = () => {
           fullWidth
         />
       </Box>
+
       <Grid container spacing={3} direction="column">
-        {Array.from({ length: numberOfDays }).map((_, dayIndex) => (
-          <Grid item key={dayIndex}>
-            <Divider />
-            <DayComponent
-              dayNumber={dayIndex + 1}
-              allDaysExercises={allDaysExercises}
-              setExercisesForDay={(exercisesForDay) => {
-                const updatedDays = [...allDaysExercises];
-                updatedDays[dayIndex] = {
-                  ...updatedDays[dayIndex],
-                  ...exercisesForDay,
-                };
-                setAllDaysExercises(updatedDays);
-              }}
-            />
-          </Grid>
-        ))}
-      </Grid>
+  {allDaysExercises.map((day, dayIndex) => (
+    <Grid item key={day.id}> {/* Use day.id instead of dayIndex */}
+      <Divider />
+      <div   
+        onMouseEnter={() => setHoveredDayIndex(dayIndex)}
+        onMouseLeave={() => setHoveredDayIndex(null)}
+        style={{ position: 'relative', padding: '10px', hover: {backgroundColor: 'rgba(0,0,0,0.05)'}}}>
+          
+        <DayComponent
+          dayNumber={dayIndex + 1}
+          initialDayName={day.dayName} 
+          allDaysExercises={allDaysExercises}
+          setExercisesForDay={(exercisesForDay) => {
+            const updatedDays = [...allDaysExercises];
+            updatedDays[dayIndex] = {
+              ...updatedDays[dayIndex],
+              ...exercisesForDay,
+            };
+            setAllDaysExercises(updatedDays);
+          }}
+        />
+        {hoveredDayIndex === dayIndex && (
+          <IconButton
+            style={{
+              position: 'absolute',
+              top: 5,
+              right: 5,
+              cursor: 'pointer',
+            }}
+            onClick={() => openConfirmationDialog(dayIndex)}
+          >
+            <CloseIcon />
+          </IconButton>
+        )}
+      </div>
+    </Grid>
+  ))}
+</Grid>
+
+
+<Dialog
+  open={openDeleteDialog}
+  onClose={closeConfirmationDialog}
+  aria-labelledby="alert-dialog-title"
+  aria-describedby="alert-dialog-description"
+>
+  <DialogTitle id="alert-dialog-title">Confirm Deletion</DialogTitle>
+  <DialogContent>
+    <DialogContentText id="alert-dialog-description">
+      Are you sure you want to delete this day? All data for this day will be permanently removed.
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={closeConfirmationDialog} color="primary">
+      Cancel
+    </Button>
+    <Button onClick={confirmDelete} color="primary" autoFocus>
+      Delete
+    </Button>
+  </DialogActions>
+</Dialog>
+
+
+      {/* Add, Remove and Copy a Day */}
       <Box mt={3} display="flex" justifyContent="space-between">
         <Box
           sx={{

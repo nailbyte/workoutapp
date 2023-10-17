@@ -15,6 +15,8 @@ import {
   Box,
   Snackbar,
   Alert,
+  Grid,
+  Divider,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DayComponent from "../components/CreateProgram/DayComponent";
@@ -49,10 +51,9 @@ import {
   CircularWithValueLabel,
 } from "../components/common/LoadingComp";
 
-import theme from './../theme';
+import theme from "./../theme";
 
 const ProgramView = () => {
-  
   const { enqueueSnackbar } = useSnackbar();
   const { user, handleLogout } = useContext(AuthContext);
 
@@ -142,9 +143,9 @@ const ProgramView = () => {
 
   if (loading) {
     return (
-      <p>
+      <div>
         <LinearIndeterminate />
-      </p>
+      </div>
     );
     //return <p><CircularIndeterminate/></p>
     //return <p><CircularWithValueLabel/></p>
@@ -162,7 +163,7 @@ const ProgramView = () => {
         Program Details
       </Typography>
 
-      <FormControl fullWidth variant="outlined" style={{ margin: "20px 0" }}>
+      <FormControl fullWidth variant="outlined" style={{ margin: "20px 0" }} size="small">
         <InputLabel>Choose Program</InputLabel>
         <Select
           value={selectedProgramIndex}
@@ -180,57 +181,58 @@ const ProgramView = () => {
         </Select>
       </FormControl>
 
-      {currentProgram && (
-        <DayLevelStyle>
-          {currentProgram.allDaysExercises &&
-          currentProgram.allDaysExercises.length > 0 ? (
+
+{currentProgram && (
+    <Grid container spacing={0} direction="column">
+        {currentProgram.allDaysExercises && currentProgram.allDaysExercises.length > 0 ? (
             currentProgram.allDaysExercises.map((dayObj, dayIndex) => (
-              <React.Fragment key={dayObj.dayName + "-" + dayIndex}>
-                <Typography variant="h6">{dayObj.dayName}</Typography>
-                <ExerLevelStyle>
-                  {dayObj.exercises.map((exerciseObj, exerciseIndex) => (
-                    <div key={exerciseObj.exerciseId + "-" + exerciseIndex}>
-                      <Typography variant="body1">
-                        {exerciseObj.exerciseName}
-                      </Typography>
-                      {exerciseObj.sets.map((set, index) => {
-                        const exerciseDetail =
-                          exerciseList[exerciseObj.exerciseId];
-                        let setDetail = "";
+                <Grid item key={dayObj.id || dayObj.dayName} style={{ padding: "12px" }}>
+                    <DayLevelStyle>
+                        <Typography>{dayObj.dayName}</Typography>
+                        <Divider width="90%" />
 
-                        // Check if exercise is weighted
-                        if (exerciseDetail.weighted) {
-                          setDetail += `${set.weight} kg `;
-                        }
+                        <Grid container spacing={3}>
+                            {dayObj.exercises.map((exerciseObj, exerciseIndex) => (
+                                <Grid item xs={6} key={exerciseObj.exerciseId + "-" + exerciseIndex}>
+                                    <ExerLevelStyle>
+                                        <Typography>{exerciseObj.exerciseName}</Typography>
+                                        {exerciseObj.sets.map((set, index) => {
+                                            const exerciseDetail = exerciseList[exerciseObj.exerciseId];
+                                            let setDetail = "";
 
-                        // Check if exercise has reps
-                        if (exerciseDetail.reps) {
-                          setDetail += `for ${set.reps} reps `;
-                        }
-
-                        // Check if exercise is timed
-                        if (exerciseDetail.timed) {
-                          setDetail += `for ${formatTime(set.time)}`;
-                        }
-
-                        return (
-                          <Typography variant="body2" key={index}>
-                            Set {index + 1}: {setDetail}
-                          </Typography>
-                        );
-                      })}
-                    </div>
-                  ))}
-                </ExerLevelStyle>
-              </React.Fragment>
+                                            if (exerciseDetail.weighted) {
+                                                setDetail += `${set.weight} kg `;
+                                            }
+                                            if (exerciseDetail.reps) {
+                                                setDetail += `for ${set.reps} reps `;
+                                            }
+                                            if (exerciseDetail.timed) {
+                                                setDetail += `for ${formatTime(set.time)}`;
+                                            }
+                                            return (
+                                                <SetLevelStyle key={index}>
+                                                    <Typography variant="body2">
+                                                        Set {index + 1}: {setDetail}
+                                                    </Typography>
+                                                </SetLevelStyle>
+                                            );
+                                        })}
+                                    </ExerLevelStyle>
+                                </Grid>
+                            ))}
+                        </Grid>
+                    </DayLevelStyle>
+                </Grid>
             ))
-          ) : (
-            <Typography variant="body1">
-              No exercises for this program.
-            </Typography>
-          )}
-        </DayLevelStyle>
-      )}
+        ) : (
+            <Grid item>
+                <Typography variant="body1">No exercises for this program.</Typography>
+            </Grid>
+        )}
+    </Grid>
+)}
+
+
     </div>
   );
 };

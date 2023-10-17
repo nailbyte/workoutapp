@@ -36,7 +36,6 @@ const ExerciseComponent = ({
   const convertToTotalSeconds = (minutes, seconds) => {
     return (minutes || 0) * 60 + (seconds || 0);
   };
-console.log("ExerciseComponent: sets:", sets);
   const handleTimeChange = (index, type, value) => {
     const newSets = [...sets];
     newSets[index][type] = value !== "" ? parseInt(value, 10) : undefined;
@@ -134,7 +133,6 @@ console.log("ExerciseComponent: sets:", sets);
         onChange={handleExerciseChange}
       />
       <SetLevelStyle>
-        {console.log("ExerciseComponent: sets:", sets)}
         {sets && sets.map((set, index) => (
           <div
             key={index}

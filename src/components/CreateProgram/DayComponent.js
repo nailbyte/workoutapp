@@ -11,10 +11,12 @@ import CustomTextField from "../common/CustomTextField";
 //import { enqueueSnackbar } from "notistack";
 import { useSnackbar } from "notistack";
 
-const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
+const DayComponent = ({ dayNumber, initialDayName, allDaysExercises, setExercisesForDay }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [exercises, setExercises] = useState([]);
-  const [dayName, setDayName] = useState(`Day: ${dayNumber}`);
+  const [dayName, setDayName] = useState(() => {
+    return initialDayName || `Day: ${dayNumber}`;
+  });  
   const [selectedDayToCopy, setSelectedDayToCopy] = useState(1);
   const [, forceUpdate] = useState();
 
@@ -96,6 +98,7 @@ const DayComponent = ({ dayNumber, allDaysExercises, setExercisesForDay }) => {
       <div className="day">
         <TextField
           //label= {`Day: ${dayNumber}`}
+          defaultValue={`Day: ${dayNumber}`}
           placeholder={`Day: ${dayNumber}`}
           variant="standard"
           style={{
