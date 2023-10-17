@@ -38,6 +38,9 @@ import { addDoc, collection, doc, getDoc } from "firebase/firestore";
 import CustomTextField from "../components/common/CustomTextField";
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from "@mui/material";
 import { v4 as uuidv4 } from 'uuid';
+import GetProgramView from "./GetProgramView"; 
+import programSuccessAnimation from "../assets/images/ProgramSuccessAnimation.json";
+import Lottie from "lottie-react";
 
 const CreateProgramView = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -58,6 +61,11 @@ const CreateProgramView = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [dayToDelete, setDayToDelete] = useState(null);
   const [hoveredDayIndex, setHoveredDayIndex] = useState(null);
+
+  const [pushedProgramData, setPushedProgramData] = useState(null);
+  const [programCreated, setProgramCreated] = useState(false);
+  const [animationPlayed, setAnimationPlayed] = useState(false);
+
 
   const openConfirmationDialog = (dayIndex) => {
     setDayToDelete(dayIndex);
@@ -170,7 +178,8 @@ const CreateProgramView = () => {
         collection(db, "workoutTemplates"),
         programData
       );
-
+        setProgramCreated(true);
+        setPushedProgramData(programData);
       enqueueSnackbar("Program saved successfully!", { variant: "success" });
     } catch (error) {
       console.error("Error writing workout program: ", error);
@@ -256,6 +265,45 @@ const CreateProgramView = () => {
     }
     return items;
   });
+
+  
+  if (programCreated) {
+    return (
+      <Box 
+        display="flex" 
+        flexDirection="column" 
+        alignItems="center" 
+        padding="2rem"
+      >
+        {!animationPlayed && (
+          <div className="lottie-overlay">
+            <Lottie 
+              animationData={programSuccessAnimation}
+              loop={false}
+              autoplay
+              onComplete={() => setAnimationPlayed(true)}
+              className="lottie-animation"
+            />
+          </div>
+        )}
+  
+        <Typography 
+          variant="h4"
+          gutterBottom
+          style={{ 
+            marginBottom: '1rem',
+            fontWeight: 600,
+            color: '#333'
+          }}
+        >
+          Workout:{" "} {pushedProgramData.programName}
+        </Typography>
+        
+        <GetProgramView currentProgram={pushedProgramData} />
+      </Box>
+    );
+  }
+  
 
   return (
     <Box p={3}>
